@@ -28,7 +28,7 @@ def handle_client_timer(client_connections_info, epoll, idle_time_out=60):
 		now = datetime.datetime.now()	
 		for fileno in client_connections_info.keys():
 			if int((now-client_connections_info[fileno]['last_accessed_time']).total_seconds()) >= idle_time_out:
-				print("Timout reached for the socket in client side " + str(fileno))
+				logger.warning("Timout reached for the socket in client side " + str(fileno))
 				modify_socket_epoll_event(epoll, fileno, 0)
 				client_connections_info[fileno]['socket'].shutdown(socket.SHUT_RDWR)
 		time.sleep(int(idle_time_out/2))

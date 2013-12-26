@@ -2,6 +2,9 @@ from ..shared.network_functions import modify_socket_epoll_event, shut_down_sock
 import datetime
 import socket
 import time
+import logging 
+
+logger = logging.getLogger()
 
 
 def handle_server_timer(server_connections_info, epoll, idle_time_out):
@@ -23,7 +26,7 @@ def handle_server_timer(server_connections_info, epoll, idle_time_out):
 		now = datetime.datetime.now()	
 		for fileno in server_connections_info.keys():
 			if int((now-server_connections_info[fileno]['last_accessed_time']).total_seconds()) >= idle_time_out:
-				print("Timout reached for the socket id " + str(fileno))
+				logger.warning("Timout reached for the socket id " + str(fileno))
 				modify_socket_epoll_event(epoll, fileno, 0)
 				shut_down_socket(server_connections_info[fileno]['socket'])
 		time.sleep(int(idle_time_out/2))

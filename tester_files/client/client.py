@@ -11,7 +11,7 @@ import logging
 from .client_timer import handle_client_timer
 import threading
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 class HTTPClientTimer(threading.Thread):
 	"""
@@ -60,14 +60,14 @@ def handle_client_socket_events(test_id, epoll, client_connections_info, client_
 				req_info = client_requests[fileno]
 				conn_info['last_accessed_time'] = datetime.datetime.now()
 				if event & select.EPOLLERR:
-					print("EPOLL ERROR")
+					logger.error("EPOLL ERROR in client response handling")
 				if event & select.EPOLLIN:
 					new_data = None
 					read_err = None
 					if resp_info['resp_start'] or resp_info['rem_bytes_to_read']:
 						new_data = read_data(client_connections_info[fileno]['socket'])
 						if not new_data:
-							print("Read failed so cloing the socket\n")
+							logger.error("Read failed so closing the socket\n")
 							read_err = True
 							resp_info['rem_bytes_to_read'] = 1
 							modify_socket_epoll_event(epoll, fileno, 0)
@@ -76,7 +76,7 @@ def handle_client_socket_events(test_id, epoll, client_connections_info, client_
 							resp_info['resp_start'] = False
 							resp_info['header_data'] = resp_info['header_data'] + new_data
 							if resp_info['header_data'].find(EOL1) != -1 or resp_info['header_data'].find(EOL2) != -1:
-								print("Full Header Received\n")
+								logger.debug("Full Header Received\n")
 								client_responses[fileno] = handle_server_response_data(resp_info)
 								resp_info = client_responses[fileno]
 								resp_info['full_header_received'] = True
@@ -85,22 +85,22 @@ def handle_client_socket_events(test_id, epoll, client_connections_info, client_
 							resp_info['rem_bytes_to_read'] = resp_info['rem_bytes_to_read'] - len(new_data)
 							resp_info['data'] = resp_info['data'] + new_data
 					if not resp_info['rem_bytes_to_read'] and not read_err:
-						print('-'*40 + '\n' + resp_info['header_data'])
-						print(resp_info['data'])
+						logger.debug('-'*40 + '\n' + resp_info['header_data'])
+						logger.debug(resp_info['data'])
 						verify_server_response(req_info, resp_info)
 						if resp_info['not_persistent']:
-							print("Not Persistent Connection, So closing it\n")
+							logger.debug("Not Persistent Connection, So closing it\n")
 							modify_socket_epoll_event(epoll, fileno, 0)
 							shut_down_socket(conn_info['socket'])
 						else:
 							if conn_info['remaining_requests']:
-								print("Starting new request in persistent connection\n")
+								logger.debug("Starting new request in persistent connection\n")
 								modify_socket_epoll_event(epoll, fileno, select.EPOLLOUT)
 								conn_info['remaining_requests'] = conn_info['remaining_requests'] - 1
 								client_requests[fileno] = intialize_client_request_info(get_next_request(test_id))
 								client_responses[fileno] = intialize_client_response_info()
 							else:
-								print("Request Limit reached in Persistent connection\n")
+								logger.debug("Request Limit reached in Persistent connection\n")
 								modify_socket_epoll_event(epoll, fileno, 0)
 								shut_down_socket(conn_info['socket'])
 				elif event & select.EPOLLOUT:
@@ -112,7 +112,7 @@ def handle_client_socket_events(test_id, epoll, client_connections_info, client_
 					else:
 						modify_socket_epoll_event(epoll, fileno, select.EPOLLIN)
 				elif event & select.EPOLLHUP:
-					print("EPOLLHUP from client\n")
+					logger.warning("EPOLLHUP from client\n")
 					if conn_info['remaining_requests']:
 						client_socket = creat_socket()
 						new_client_no = client_socket.fileno()
@@ -149,7 +149,7 @@ def connect_with_server(socket):
 	try:
 		socket.connect((SERVER_HOST, SERVER_PORT))
 	except:
-		print("Unable to make connection with the server")
+		logger.error("Unable to make connection with the server")
 		raise
 
 def start_http_clients():

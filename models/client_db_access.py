@@ -4,6 +4,9 @@ from db_tables.http_request import HttpRequest, HttpSubRequest
 from db_tables.http_response import HttpSubResponse
 from sqlalchemy.sql.expression import and_, or_
 from sqlalchemy import not_
+import logging 
+
+logger = logging.getLogger()
 
 def get_next_request(test_id=0):
 	"""
@@ -19,6 +22,7 @@ def get_next_request(test_id=0):
 		
 	"""
 	
+	logger.debug("TESTRK1")
 	running_request_ids = [ test_result.request_id for test_result in session.query(HttpTestResults.request_id) \
 							.filter(HttpTestResults.test_id==test_id)\
 							.filter(HttpTestResults.is_running==True)\
@@ -33,7 +37,7 @@ def get_next_request(test_id=0):
 		next_request_query	= next_request_query.filter(not_(HttpTestResults.request_id.in_(running_request_ids)))
 	next_request = next_request_query.order_by(HttpTestResults.request_id).first()
 	if not next_request:
-		print("All the requests are completed\n")
+		logger.debug("All the requests are completed\n")
 		return ''
 	sub_request = session.query(HttpSubRequest)\
 					.filter(\
@@ -60,8 +64,7 @@ def get_next_request(test_id=0):
 		request_data = request_data + "\r\n"
 	
 	next_request.is_running=True
-	print("Setting  Test Running")
 	session.commit()
-	
+	logger.debug("Next Request : %s\r\n", request_data)	
 	return str(request_data)
 

@@ -21,8 +21,6 @@ def get_response(request_uri=None):
 	if not request_uri:
 		return {}
 	test_id, req_id = [ int(parts) for parts in request_uri.strip().split("/")[:3] if len(parts) ]
-	print(test_id)
-	print(req_id)
 	running_test_row = session.query(HttpTestResults)\
 					.filter(HttpTestResults.test_id==test_id)\
 					.filter(HttpTestResults.request_id==req_id)\
@@ -64,5 +62,3 @@ def get_response(request_uri=None):
 	else:
 		response_data = response_data + "Content-Length:0\r\n\r\n"
 	return str(response_data)
-
-#print ( get_response('/17/1') )

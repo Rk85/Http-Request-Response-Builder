@@ -72,7 +72,7 @@ def handle_server_socket_events(epoll, server_socket, server_connections_info, s
 					if req_info['req_start'] or req_info['rem_bytes_to_read']:
 						new_data = read_data(conn_info['socket'])
 						if not new_data:
-							print("Read Failed so closing the connection from server\n")
+							logger.error("Read Failed so closing the connection from server\n")
 							read_err = True
 							modify_socket_epoll_event(epoll, fileno, 0)
 							shut_down_socket(conn_info['socket'])
@@ -89,8 +89,8 @@ def handle_server_socket_events(epoll, server_socket, server_connections_info, s
 							req_info['data'] = req_info['data'] + new_data
 					if not req_info['rem_bytes_to_read'] and not read_err:
 						modify_socket_epoll_event(epoll, fileno, select.EPOLLOUT)
-						print( '-'*40 + '\n' + req_info['header_data'])
-						print(req_info['data'])
+						logger.debug( '-'*40 + '\n' + req_info['header_data'])
+						logger.debug(req_info['data'])
 						verify_client_request(req_info)
 						server_responses[connection.fileno()] = intialize_server_response_info(get_response(request_uri=req_info['uri']))
 				elif event & select.EPOLLOUT:
@@ -103,7 +103,7 @@ def handle_server_socket_events(epoll, server_socket, server_connections_info, s
 						resp_info['rem_bytes_to_send'] = resp_info['tot_bytes_to_send'] - resp_info['sent_bytes']
 					else:
 						if resp_info.get('not_persistent'):
-							print("Not Persistent from server side\n")
+							logger.debug("Not Persistent from server side\n")
 							modify_socket_epoll_event(epoll, fileno, 0)
 							shut_down_socket(conn_info['socket'])
 						else:
@@ -138,7 +138,7 @@ def start_http_server():
 	
 	epoll = create_epoll()
 	server_socket = creat_socket()
-	print("Starting Server in port 8081")
+	logger.debug("Starting Server in port 8081")
 	server_socket.bind(('0.0.0.0', 8081))
 	server_socket.listen(TOT_CLIENT)
 	register_socket_epoll_event(epoll,server_socket.fileno(), select.EPOLLIN)
