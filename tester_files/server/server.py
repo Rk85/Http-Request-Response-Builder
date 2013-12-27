@@ -9,7 +9,7 @@ from .server_timer import handle_server_timer
 import threading
 import logging
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 class HTTPServerTimer(threading.Thread):
@@ -89,8 +89,8 @@ def handle_server_socket_events(epoll, server_socket, server_connections_info, s
 							req_info['data'] = req_info['data'] + new_data
 					if not req_info['rem_bytes_to_read'] and not read_err:
 						modify_socket_epoll_event(epoll, fileno, select.EPOLLOUT)
-						logger.debug( '-'*40 + '\n' + req_info['header_data'])
-						logger.debug(req_info['data'])
+						logger.info( '-'*40 + '\n' + req_info['header_data'])
+						logger.info(req_info['data'])
 						verify_client_request(req_info)
 						server_responses[connection.fileno()] = intialize_server_response_info(get_response(request_uri=req_info['uri']))
 				elif event & select.EPOLLOUT:

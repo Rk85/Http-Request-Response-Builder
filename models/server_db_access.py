@@ -2,6 +2,9 @@ from db_tables.db_base import session
 from db_tables.http_response import HttpResponse, HttpSubResponse
 from db_tables.http_request import HttpRequest, HttpSubRequest
 from db_tables.http_tests import HttpTestResults, HttpServerTestFailureReason
+import logging
+
+logger = logging.getLogger()
 
 def get_response(request_uri=None):
 	"""
@@ -61,4 +64,5 @@ def get_response(request_uri=None):
 		response_data = response_data + sub_response.data.data
 	else:
 		response_data = response_data + "Content-Length:0\r\n\r\n"
+	logger.debug("Response From Server : " + response_data)
 	return str(response_data)

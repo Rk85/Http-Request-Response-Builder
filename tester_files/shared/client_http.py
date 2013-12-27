@@ -235,6 +235,36 @@ def verify_server_response(req_info, resp_info):
 				running_test_row.response_result=True
 			session.commit()
 
+def set_test_completion(test_id, req_id):
+	"""
+		description: Before closing the socket, verify the closing socket requested
+						completed successfuly or not
+		
+		param: test_id - Test Id of the given test
+		type: int
+		
+		param: req_id - Request Id of the closing socket
+		type:  int
+		
+		sample output : None
+		
+	"""
+	running_test_row = session.query(HttpTestResults)\
+                    .filter(HttpTestResults.test_id==test_id)\
+                    .filter(HttpTestResults.request_id==req_id)\
+                    .filter(HttpTestResults.is_running==True)\
+                    .filter(HttpTestResults.is_completed==False).first()
+	if running_test_row:
+		reason = "Unexpected Event Happened in while receiving client response"
+		client_failure_reason = HttpClientTestFailureReason(reason=reason)
+		session.add(client_failure_reason)
+		session.flush()
+		running_test_row.response_result=False
+		running_test_row.client_failure_id = client_failure_reason.id
+		running_test_row.is_completed=True
+		running_test_row.is_running=False
+		session.commit()
+
 def verify_headers(response_hdrs_list, resp_info, result_reason):
 	"""
 		description: Verifies the Response Header for correct value in them

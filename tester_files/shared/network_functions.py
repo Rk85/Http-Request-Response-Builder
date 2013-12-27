@@ -23,7 +23,7 @@ def creat_socket():
 		new_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		new_socket.setblocking(0)
 		new_socket.settimeout(60)
-	except e:
+	except Exception as e:
 		logger.exception("Unable to create the socket : " + str(e))
 		raise
 	return new_socket
@@ -43,7 +43,7 @@ def create_epoll():
 	
 	try:
 		epoll = select.epoll()
-	except e:
+	except Exception as e:
 		logger.exception("Unable to create Epoll Listener\n" +  str(e))
 		raise
 	return epoll
@@ -68,7 +68,7 @@ def register_socket_epoll_event(epoll, event_socket, event):
 	
 	try:
 		epoll.register(event_socket, event)
-	except e:
+	except Exception as e:
 		logger.exception("Unable to register the socket fo the event" + event + " :" + str(e))
 		raise
 
@@ -92,7 +92,7 @@ def modify_socket_epoll_event(epoll, event_socket, event):
 
 	try:
 		epoll.modify(event_socket, event)
-	except e:
+	except Exception as e:
 		logger.exception("Unable to modify the socket fo the event" + event + " :" + str(e))
 		raise
 
@@ -118,7 +118,7 @@ def close_socket(epoll, socket_no, connections):
 		epoll.unregister(socket_no)
 		connections[socket_no]['socket'].close()
 		del connections[socket_no]
-	except e:
+	except Exception as e:
 		logger.exception("Error while closing the scoket : " + str(e))
 		raise
 
@@ -138,7 +138,7 @@ def read_data(read_socket, read_size=1024):
 	data = b''
 	try:
 		data = read_socket.recv(read_size)
-	except e:
+	except Exception as e:
 		logger.exception("Error While reading data from connection : " + str(e))
 		return None
 	return data.decode()
@@ -159,7 +159,7 @@ def send_data(send_socket, data):
 	
 	try:
 		written_bytes =	send_socket.send(bytes(data, 'utf-8'))
-	except e:
+	except Exception as e:
 		logger.exception("Error Happened while sending the data, so closing the connection\n" + str(e))
 		return 0
 	return written_bytes
@@ -178,6 +178,6 @@ def shut_down_socket(closing_socket):
 	
 	try:
 		closing_socket.shutdown(socket.SHUT_RDWR)
-	except e:
+	except Exception as e:
 		logger.exception("Error Happened while shutting down the socket \n" + str(e))
 		raise

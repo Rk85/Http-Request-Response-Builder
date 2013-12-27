@@ -7,7 +7,6 @@ import logging
 from logging import config
 ERROR_FORMAT = "%(levelname)s at %(asctime)s in function '%(funcName)s' in file \"%(pathname)s\" at line %(lineno)d: %(message)s"
 DEBUG_FORMAT = "%(levelname)s at %(asctime)s in function '%(funcName)s' in file \"%(pathname)s\" at line %(lineno)d: %(message)s"
-#DEBUG_FORMAT = "%(lineno)d in %(filename)s at %(asctime)s: %(message)s"
 LOG_CONFIG = {'version':1,
               'formatters':{'error':{'format':ERROR_FORMAT},
                             'debug':{'format':DEBUG_FORMAT}},
