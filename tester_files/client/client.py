@@ -2,13 +2,29 @@
 import sys
 import socket, select
 import time
-from configs.client_config import *
-from ..shared.network_functions import *
-from models.client_db_access import get_next_request
-from models.new_test_insert import load_tests
-from ..shared.client_http import *
 import datetime
 import logging
+from configs.client_config import ( EOL1, 
+		EOL2, 
+		SERVER_HOST, 
+		SERVER_PORT, 
+		READ_BLOCK_SIZE)
+from ..shared.network_functions import ( create_epoll,
+	modify_socket_epoll_event,
+	close_socket,
+	read_data,
+	send_data,
+	shut_down_socket
+	)
+from ..shared.client_http import ( intialize_client_response_info,
+	intialize_client_request_info,
+	handle_server_response_data,
+	verify_server_response,
+	set_test_completion,
+	prepare_client_connection
+	)
+from models.client_db_access import get_next_request
+from models.new_test_insert import load_tests
 from .client_timer import handle_client_timer
 from db_tables.db_base import session
 from db_tables.http_tests import HttpTestResults
@@ -70,14 +86,17 @@ def handle_client_socket_events(test_id, epoll, client_connections_info, client_
 				if event & select.EPOLLIN:
 					new_data = None
 					read_err = None
+					# Receive the response from server
 					if resp_info['resp_start'] or resp_info['rem_bytes_to_read']:
 						new_data = read_data(client_connections_info[fileno]['socket'])
+						# If any read failure happens
 						if not new_data:
 							logger.error("Read failed so closing the socket\n")
 							read_err = True
 							resp_info['rem_bytes_to_read'] = 1
 							modify_socket_epoll_event(epoll, fileno, 0)
 							shut_down_socket(conn_info['socket'])
+						# Before receiving the all response headers
 						if new_data and not resp_info.get('full_header_received'):
 							resp_info['resp_start'] = False
 							resp_info['header_data'] = resp_info['header_data'] + new_data
@@ -86,19 +105,25 @@ def handle_client_socket_events(test_id, epoll, client_connections_info, client_
 								client_responses[fileno] = handle_server_response_data(resp_info)
 								resp_info = client_responses[fileno]
 								resp_info['full_header_received'] = True
+						# After receiving the all the response headers
+						# And when the response data is not chunked
 						elif new_data and resp_info.get('full_header_received') and not resp_info['is_chunked']:
 							resp_info['received_bytes'] = resp_info['received_bytes'] + len(new_data)
 							resp_info['rem_bytes_to_read'] = resp_info['rem_bytes_to_read'] - len(new_data)
 							resp_info['data'] = resp_info['data'] + new_data
+					# Once all response is received, verify the data
 					if not resp_info['rem_bytes_to_read'] and not read_err:
 						logger.info('-'*40 + '\n' + resp_info['header_data'])
 						logger.info(resp_info['data'])
 						verify_server_response(req_info, resp_info)
+						# For a non-persistent connection
 						if resp_info['not_persistent']:
 							logger.debug("Not Persistent Connection, So closing it\n")
 							modify_socket_epoll_event(epoll, fileno, 0)
 							shut_down_socket(conn_info['socket'])
 						else:
+							# For persistent connection, if there is any 
+							# sub-requests pending. Re-set the previous request, response dats
 							if conn_info['remaining_requests']:
 								logger.debug("Starting new request in persistent connection\n")
 								modify_socket_epoll_event(epoll, fileno, select.EPOLLOUT)
@@ -107,8 +132,11 @@ def handle_client_socket_events(test_id, epoll, client_connections_info, client_
 								client_requests[fileno] = intialize_client_request_info(next_request_info['data'])
 								client_responses[fileno] = intialize_client_response_info()
 							else:
+								# For new request set, start the request sending in 
+								# already opened persistent connection
 								logger.debug("All Sub Request have completed for the request " + (conn_info['request_id']))
 								next_request_info = get_next_request(test_id)
+								# If any request set is pending for the test, start it
 								if next_request_info.get('id'):
 									logger.debug("Opening New Request in persistent Connection \n")
 									request_info = session.query(HttpRequest).filter(HttpRequest.id==int(next_request_info['id'])).first()
@@ -121,9 +149,11 @@ def handle_client_socket_events(test_id, epoll, client_connections_info, client_
 									client_connections_info[fileno]['remaining_requests'] = client_connections_info[new_client_no]['remaining_requests'] - 1
 									modify_socket_epoll_event(epoll, fileno, select.EPOLLOUT)
 								else:
+									# If there is not any request for test, close the connection
 									modify_socket_epoll_event(epoll, fileno, 0)
 									shut_down_socket(conn_info['socket'])
 				elif event & select.EPOLLOUT:
+					# Send the Request to server
 					if req_info.get('rem_bytes_to_send'):
 						tot_sent = req_info['sent_bytes']
 						tot_sent = tot_sent + send_data(conn_info['socket'], req_info['request_data'][tot_sent:])
@@ -133,65 +163,19 @@ def handle_client_socket_events(test_id, epoll, client_connections_info, client_
 						modify_socket_epoll_event(epoll, fileno, select.EPOLLIN)
 				elif event & select.EPOLLHUP:
 					logger.warning("EPOLLHUP from client\n")
+					set_test_completion(test_id, conn_info['request_id'])
+					# If there is any remaining sub-request on closing socket
+					# open the new socket and assign closing socket's
+					# request set properties to it.
 					if conn_info['remaining_requests']:
-						client_socket = creat_socket()
-						new_client_no = client_socket.fileno()
-						set_test_completion(test_id, conn_info['request_id'])
-						next_request_info = get_next_request(test_id, conn_info['request_id'])
-						client_connections_info[new_client_no] = {'socket': client_socket, 
-															'tot_requests_per_connection': conn_info['tot_requests_per_connection'],
-															'remaining_requests': conn_info['remaining_requests'],
-															'last_accessed_time' : datetime.datetime.now(),
-															'request_id': next_request_info['id']
-															}
-						client_requests[new_client_no] = intialize_client_request_info(next_request_info['data']) # change the 1 to category id
-						client_responses[new_client_no] = intialize_client_response_info()
-						connect_with_server(client_connections_info[new_client_no]['socket'])
-						register_socket_epoll_event(epoll,new_client_no, select.EPOLLOUT)
-						client_connections_info[new_client_no]['remaining_requests'] = client_connections_info[new_client_no]['remaining_requests'] - 1
+						prepare_client_connection(epoll, client_connections_info, client_requests, client_responses, test_id, conn_info['request_id'])
 					else:
-						set_test_completion(test_id, conn_info['request_id'])
-						next_request_info = get_next_request(test_id)
-						if next_request_info.get('id'):
-							client_socket = creat_socket()
-							new_client_no = client_socket.fileno()
-							request_info = session.query(HttpRequest).filter(HttpRequest.id==int(next_request_info['id'])).first()
-							client_connections_info[new_client_no] = {'socket': client_socket, 
-															'tot_requests_per_connection': request_info.total_requests,
-															'remaining_requests': request_info.total_requests,
-															'last_accessed_time' : datetime.datetime.now(),
-															'request_id': next_request_info['id']
-															}
-							client_requests[new_client_no] = intialize_client_request_info(next_request_info['data']) # change the 1 to category id
-							client_responses[new_client_no] = intialize_client_response_info()
-							connect_with_server(client_connections_info[new_client_no]['socket'])
-							register_socket_epoll_event(epoll,new_client_no, select.EPOLLOUT)
-							client_connections_info[new_client_no]['remaining_requests'] = client_connections_info[new_client_no]['remaining_requests'] - 1
-					
+						prepare_client_connection(epoll, client_connections_info, client_requests, client_responses, test_id)
 					close_socket(epoll, fileno, client_connections_info)
 					del client_requests[fileno]
 					del client_responses[fileno]
 	except:
 		epoll.close()
-		raise
-
-def connect_with_server(socket):
-	"""
-		description: Connects the Socket with the server end
-		
-		param: socket - Client side socket to make connection
-		type: socket
-		
-		rparam:
-		rtype:
-		
-		sample output:
-	"""
-
-	try:
-		socket.connect((SERVER_HOST, SERVER_PORT))
-	except:
-		logger.error("Unable to make connection with the server")
 		raise
 
 def start_http_clients():
@@ -224,22 +208,7 @@ def start_http_clients():
 	parallel_clients = tot_test_requests if parallel_clients > tot_test_requests else parallel_clients
 	
 	for i in range(0,parallel_clients):
-		next_request_info = get_next_request(test_id)
-		request_info = session.query(HttpRequest).filter(HttpRequest.id==int(next_request_info['id'])).first()
-		client_socket = creat_socket()
-		client_connections_info[client_socket.fileno()] = {'socket': client_socket, 
-															'tot_requests_per_connection': request_info.total_requests,
-															'remaining_requests': request_info.total_requests,
-															'last_accessed_time' : datetime.datetime.now(),
-															'request_id': next_request_info['id']
-															}
-		client_requests[client_socket.fileno()] = intialize_client_request_info( next_request_info['data'])
-		client_responses[client_socket.fileno()] = intialize_client_response_info()
-	for fileno in client_connections_info.keys():
-		connect_with_server(client_connections_info[fileno]['socket'])
-	for fileno in client_connections_info.keys():
-		register_socket_epoll_event(epoll,fileno, select.EPOLLOUT)
-		client_connections_info[fileno]['remaining_requests'] = client_connections_info[fileno]['remaining_requests'] - 1
+		prepare_client_connection(epoll, client_connections_info, client_requests, client_responses, test_id)
 	
 	# Start the client timer thread
 	http_client_timer = HTTPClientTimer(client_connections_info, epoll, idle_time_out=60)

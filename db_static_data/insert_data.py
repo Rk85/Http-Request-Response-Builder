@@ -7,10 +7,26 @@ import os
 cwd = os.path.normpath(os.getcwd() + "/../")
 sys.path.append(cwd)
 from db_tables.db_base import session
-from db_tables.http_response import *
-from db_tables.http_request import *
-from db_tables.http_tests import *
-from db_tables.http_verification import *
+from db_tables.http_response import ( HttpResponseCodes,
+	HttpResponseHeaders,
+	HttpResponse,
+	HttpSubResponse
+	)
+from db_tables.http_request import ( HttpRequestMethods, 
+	HttpRequestHeaders,
+	HttpData,
+	HttpRequestCategory,
+	HttpRequest,
+	HttpSubRequest1,
+	)
+from db_tables.http_tests import ( HttpTest,
+	HttpTestResults,
+	HttpServerTestFailureReason,
+	HttpClientTestFailureReason
+	)
+from db_tables.http_verification import ( HttpResponseVerification,
+	HttpRequestVerification
+	)
 import hashlib
 
 methods = [

@@ -181,3 +181,23 @@ def shut_down_socket(closing_socket):
 	except Exception as e:
 		logger.exception("Error Happened while shutting down the socket \n" + str(e))
 		raise
+
+def connect_with_server(socket, server_ip, server_port=80):
+	"""
+		description: Connects the Socket with the server end
+		
+		param: socket - Client side socket to make connection
+		type: socket
+		
+		rparam:
+		rtype:
+		
+		sample output:
+
+	"""
+	try:
+		socket.connect((server_ip, server_port))
+	except:
+		logger.error("Unable to make connection with the server")
+		raise
+

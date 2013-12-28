@@ -1,10 +1,17 @@
-from configs.client_config import EOL1, EOL2
+from configs.client_config import EOL1, EOL2, SERVER_HOST, SERVER_PORT
 from db_tables.db_base import session
 from db_tables.http_response import HttpResponse, HttpSubResponse
 from db_tables.http_verification import HttpResponseVerification
 from db_tables.http_request import HttpRequest, HttpSubRequest
 from db_tables.http_tests import HttpTestResults, HttpClientTestFailureReason
 import hashlib
+from models.client_db_access import get_next_request
+from .network_functions import ( creat_socket,
+	connect_with_server,
+	register_socket_epoll_event
+	)
+import datetime
+import select
 
 def find_checksum(data=None):
 	"""
@@ -307,4 +314,60 @@ def verify_headers(response_hdrs_list, resp_info, result_reason):
 				return False
 	return True
 
+def prepare_client_connection(epoll, client_connections_info, client_requests, client_responses, test_id, request_id=None):
+	"""
+		description: Prepares the client connection for sending the request
+		
+		param: epoll - poll for the client sockets
+		type: epoll
+		param: client_connections_info - Client connection information dictionary
+		type: dict
+		param: client_requests  - Client requests information dictionary
+		type: dict
+		param: client_requests  - Client response information dictionary
+		type: dict
+		param: test_id - Test Unit Id
+		type: int
+		param: request_id - Unique Request Id
+		type: int
+		
+		rparam: 
+		rtype: 
+		
+		sample output:
+		
+	"""
+	client_socket = creat_socket()
+	new_client_no = client_socket.fileno()
+	next_request_info = get_next_request(test_id, request_id)
+	if not next_request_info.get('id'):
+		return
+	request_row = session.query(HttpRequest).filter(HttpRequest.id==int(next_request_info['id'])).first()
+	if request_id:
+		remaining_requests = session.query(HttpTestResults)\
+								.filter(HttpTestResults.test_id==test_id)\
+								.filter(HttpTestResults.request_id==int(next_request_info['id']))\
+								.filter(HttpTestResults.is_completed==False)\
+								.filter(HttpTestResults.is_running==False).count()
+		request_info = {
+					'tot_requests_per_connection' : request_row.total_requests,
+					'remaining_requests' : remaining_requests,
+					'last_accessed_time' : datetime.datetime.now(),
+					'request_id': request_id,
+					'socket': client_socket
+				}
+	else:
+		request_info = {
+					'tot_requests_per_connection' : request_row.total_requests,
+					'remaining_requests' : request_row.total_requests,
+					'last_accessed_time' : datetime.datetime.now(),
+					'request_id': next_request_info['id'],
+					'socket': client_socket
+				}
+	client_connections_info[new_client_no] = request_info
+	client_requests[new_client_no] = intialize_client_request_info(next_request_info['data']) # change the 1 to category id
+	client_responses[new_client_no] = intialize_client_response_info()
+	connect_with_server(client_connections_info[new_client_no]['socket'], SERVER_HOST, SERVER_PORT)
+	register_socket_epoll_event(epoll, new_client_no, select.EPOLLOUT)
+	client_connections_info[new_client_no]['remaining_requests'] = client_connections_info[new_client_no]['remaining_requests'] - 1
 
