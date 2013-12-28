@@ -17,7 +17,7 @@ from db_tables.http_request import ( HttpRequestMethods,
 	HttpData,
 	HttpRequestCategory,
 	HttpRequest,
-	HttpSubRequest1,
+	HttpSubRequest,
 	)
 from db_tables.http_tests import ( HttpTest,
 	HttpTestResults,
@@ -59,7 +59,7 @@ for request_header in request_headers:
 		session.add(new_item)
 
 def find_checksum(data=None):
-    """
+	"""
 		description: Gets the MD5 hash of the given Data
 		
 		param: data - Data for which the MD5 Hash needs to be found

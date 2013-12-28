@@ -24,10 +24,9 @@ from ..shared.client_http import ( intialize_client_response_info,
 	prepare_client_connection
 	)
 from models.client_db_access import get_next_request
-from models.new_test_insert import load_tests
 from .client_timer import handle_client_timer
 from db_tables.db_base import session
-from db_tables.http_tests import HttpTestResults
+from db_tables.http_tests import HttpTestResults, HttpTest
 from db_tables.http_request import HttpRequest
 
 import threading
@@ -38,11 +37,12 @@ class HTTPClientTimer(threading.Thread):
 	"""
 		HTTP Client Socket Timer Thread for Compliance Testing
 	"""
-	def __init__(self, client_connections_info, epoll, idle_time_out):
+	def __init__(self, client_connections_info, epoll, test_id, idle_time_out):
 		threading.Thread.__init__(self)
 		self.client_connections_info = client_connections_info
 		self.epoll = epoll
 		self.idle_time_out = idle_time_out
+		self.test_id = test_id
 
 	def run(self):
 		"""
@@ -57,7 +57,7 @@ class HTTPClientTimer(threading.Thread):
 			sample output:
 		"""
 		logger.debug("Starting the Client Timer Thread")
-		handle_client_timer(self.client_connections_info, self.epoll, self.idle_time_out)
+		handle_client_timer(self.client_connections_info, self.epoll, self.test_id, self.idle_time_out)
 
 
 def handle_client_socket_events(test_id, epoll, client_connections_info, client_requests, client_responses):
@@ -75,6 +75,14 @@ def handle_client_socket_events(test_id, epoll, client_connections_info, client_
 	try:
 		while True:
 			parallel_clients = len(client_connections_info.keys())
+			if parallel_clients == 0:
+				logger.debug("Test Completed Id : " + str(test_id))
+				test = session.query(HttpTest).get(test_id)
+				test.completed=True
+				test.running=False
+				test.completed_time=datetime.datetime.now()
+				session.commit()
+				break
 			events = epoll.poll(parallel_clients)
 			for fileno, event in events:
 				conn_info = client_connections_info[fileno]
@@ -178,7 +186,7 @@ def handle_client_socket_events(test_id, epoll, client_connections_info, client_
 		epoll.close()
 		raise
 
-def start_http_clients():
+def start_http_clients(test_id):
 	"""
 		description: Client HTTP Test start function
 		
@@ -190,7 +198,6 @@ def start_http_clients():
 		
 		sample output: 
 	"""
-	test_id = load_tests(category_id=1)
 	client_connections_info = {}
 	client_requests = {}
 	client_responses = {}
@@ -211,7 +218,7 @@ def start_http_clients():
 		prepare_client_connection(epoll, client_connections_info, client_requests, client_responses, test_id)
 	
 	# Start the client timer thread
-	http_client_timer = HTTPClientTimer(client_connections_info, epoll, idle_time_out=60)
+	http_client_timer = HTTPClientTimer(client_connections_info, epoll, test_id=test_id, idle_time_out=60)
 	http_client_timer.start()
 	handle_client_socket_events(test_id, epoll, client_connections_info, client_requests, client_responses)
 	

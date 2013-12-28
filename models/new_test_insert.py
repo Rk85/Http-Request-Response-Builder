@@ -3,7 +3,10 @@ from db_tables.http_response import HttpResponse, HttpSubResponse
 from db_tables.http_tests import HttpTestResults, HttpTest
 from db_tables.db_base import session, db_connection
 
-def load_tests(category_id=0):
+def load_tests(name, 
+				description,
+				scheduled_by,
+			category_id):
 	"""
 		description: Inserts the new record in the global Test Table
 						and copies the new tests requires into HttpTestResults
@@ -20,8 +23,7 @@ def load_tests(category_id=0):
 	"""
 	
 	test_id = 0
-	new_test = HttpTest(name="new_test", description="new_test",
-						category_id=category_id, scheduled_by="RK")
+	new_test = HttpTest(name=name, description=description, category_id=category_id, scheduled_by=scheduled_by)
 	session.add(new_test)
 	session.flush()
 	session.commit()

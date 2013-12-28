@@ -1,9 +1,12 @@
 from tester_files.server.server import start_http_server
 from tester_files.client.client import start_http_clients
 from tester_files.server.server_timer import handle_server_timer
+from db_tables.http_tests import HttpTest
+from db_tables.db_base import session
 import threading
 import time
 import logging
+import os
 from logging import config
 ERROR_FORMAT = "%(levelname)s at %(asctime)s in function '%(funcName)s' in file \"%(pathname)s\" at line %(lineno)d: %(message)s"
 DEBUG_FORMAT = "%(levelname)s at %(asctime)s in function '%(funcName)s' in file \"%(pathname)s\" at line %(lineno)d: %(message)s"
@@ -26,8 +29,9 @@ class HTTPClient(threading.Thread):
 	"""
 		HTTP Client Thread for Compliance Testing
 	"""
-	def __init__(self):
+	def __init__(self, test_id):
 		threading.Thread.__init__(self)
+		self.test_id = test_id
 	
 	def run(self):
 		"""
@@ -43,7 +47,7 @@ class HTTPClient(threading.Thread):
 
 		"""
 		logger.debug("Starting the clients Thread")
-		start_http_clients()
+		start_http_clients(self.test_id)
 
 class HTTPServer(threading.Thread):
 	"""
@@ -69,11 +73,23 @@ class HTTPServer(threading.Thread):
 
 if __name__ == "__main__":
 	http_server = HTTPServer()
-	http_clients = HTTPClient()
 
 	http_server.start()
 	time.sleep(2)
-	http_clients.start()
-	
+	MAX_TESTS = 3
+	while True:
+		try:
+			tot_running_tests = session.query(HttpTest).filter(HttpTest.running==True).count()
+			if tot_running_tests < MAX_TESTS and not os.path.isfile("dont_run"):
+				new_test = session.query(HttpTest).filter(HttpTest.running==False)\
+							.filter(HttpTest.completed==False).first()
+				if new_test:
+					http_clients = HTTPClient(new_test.id)
+					http_clients.start()
+					new_test.running=True
+					#http_clients.join()
+					time.sleep(2)
+			time.sleep(10)
+		except Exception as e:
+			logger.exception("Exception in Main thread " + str(e) )
 	http_server.join()
-	http_clients.join()

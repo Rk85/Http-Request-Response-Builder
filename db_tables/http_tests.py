@@ -22,9 +22,9 @@ class HttpTest(Base):
 	name = Column("TestName", String(1000), nullable=False)
 	description = Column("TestDescription", String(1000), nullable=False)
 	category_id = Column("CategoryId", Integer, ForeignKey("RequestCategory.Id"), nullable=False)
-	paused = Column("TestPaused", Boolean, default=False)
-	completed = Column("Completed", Boolean, default=False)
-
+	paused = Column("TestPaused", Boolean, default=False, nullable=True)
+	completed = Column("Completed", Boolean, default=False, nullable=True)
+	running = Column("Running", Boolean, default=False, nullable=True)
 	created_time = Column("CreatedDateTime", DATETIME, nullable=False, default=func.now())	
 	completed_time = Column("CompletedTime", DATETIME, nullable=True)
 	scheduled_by =  Column("ScheduledBy", String(1000), nullable=False)
