@@ -1,0 +1,81 @@
+<div>
+<div>
+	<h3 class="text-center"> Scheduling New Test </h3>
+</div>
+<div>
+	<form class="form-horizontal">
+	  <div class="control-group">
+		 <label class="control-label">Test Name</label>
+		    <div class="controls">
+			    <input type="text" data-bind="value: testName" placeholder="Test Name">
+			</div>
+  	  </div>
+	  <div class="control-group">
+		    <label class="control-label">User Name</label>
+			<div class="controls"> 
+				<input type="text" data-bind="value: userName" placeholder="Your Name">
+			</div>
+	  </div>
+	  <div class="control-group">
+	    <label class="control-label">Text Description</label>
+    		<div class="controls">
+				 <textarea data-bind="value: testDescription" > </textarea>
+		    </div>
+	  </div>
+	  <div class="control-group">
+		    <label class="control-label">Test Category to run </label>
+			<div class="controls"> 
+				<select data-bind="options: availableCategories, optionsText: 'name', optionsCaption:'Please select Category', value: selectedCategory" ></select>
+			</div>
+	  </div>
+	  <div class="control-group">
+			<div class="controls"> 
+				<button class="btn" data-bind="click: submitData">Submit</button>
+			</div>
+	  </div>
+	</form>
+</div>
+</div>
+<script>
+(function(httpCompliance, $, undefined){
+  
+
+  httpCompliance.scheduleNewTestViewModel = function(data){
+    var self = this;
+	self.testName = ko.observable();
+	self.testDescription = ko.observable();
+	self.userName = ko.observable();
+    self.availableCategories = ko.observableArray( data.categories || [] );
+    self.selectedCategory = ko.observable();
+
+    self.submitData = function submitData(data, event){
+		if ( self.testName() && self.selectedCategory() && 
+				self.testDescription() && self.userName() ) {
+			postData = { test_name : self.testName(),
+					description : self.testDescription(),
+					user_name : self.userName(),
+					category_id : self.selectedCategory().id
+				}
+			$.ajax({ type: "POST",
+						url: "/schedule_new_test",
+						data: ko.toJSON(postData),
+						contentType: "application/json; charset=utf-8",
+						dataType: "json",
+						success: function(result) {
+							$.prompt(result.post_response.response_text);
+						}
+					}).fail(function(){
+				$.prompt("Unknown Error at server side");
+			})
+			return;
+		}
+		$.prompt("Please fill all the required Fields");
+    };
+	}
+}(Application.namespace("Application.httpCompliance"), jQuery))
+
+var applyFormBindings = function(data, tab_id){
+	ko.applyBindings(new Application.httpCompliance.scheduleNewTestViewModel(data), $(tab_id)[0]);
+};
+
+</script>

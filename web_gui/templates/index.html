@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Sample Project{% endblock %}
+
+{% block content %}
+
+<div id="application_tabs">
+	<ul >
+    		<li ><a href="#newtab-0">Home</a></li>
+	</ul>
+	<div id="newtab-0">
+   	 	<div class="row-fluid">
+			<div class="span2 pull-left-corner">
+				<ul class="nav nav-pills pull-left nav-stacked">
+					<li class="dropdown-submenu menu-list" >
+						<a>Test</a>
+						<ul class="dropdown-menu" >
+  							<li ><a href="#/schedule_new_test"> Schedule New Test</a></li>
+  							<li><a href="#/search_test">Search Test</a></li>
+						</ul>
+					</li>
+		  			<li class="dropdown-submenu menu-list" >
+						<a>Status Report</a>
+						<ul class="dropdown-menu" >
+  							<li><a href="#/report/all_test">All Test</a></li>
+  							<li><a href="#/report/running_test">Running Test</a></li>
+						</ul>
+					</li>
+					<li class="pull-left menu-list" ><a href="#/help">Help</a></li>
+				</ul>
+			 </div>
+			 <div class="span10 offset2">
+			      <p>Http Protocol Compliance testing tool </p>
+			 </div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
