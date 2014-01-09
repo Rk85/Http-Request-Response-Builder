@@ -9,6 +9,7 @@ cwd = os.path.normpath(os.getcwd() + "/../")
 sys.path.append(cwd)
 from db_tables.db_base import session
 from db_tables.http_request import HttpRequestCategory
+from db_tables.http_tests import HttpTest
 from models.new_test_insert import load_tests
 
 app = Flask(__name__)
@@ -56,6 +57,48 @@ def schedule_new_test():
 		response_data = { 'post_response': { 'test_id' : 1, 'response_text': response_text}}
 		resp = make_response(jsonify(response_data), 200)
 		return resp	
+
+@app.route('/report/all_test', methods=['GET', 'POST'])
+def report_all_test():
+	if request.method == 'GET':
+		tests = []
+		for test in session.query(HttpTest).all():
+			test_info = {'id': test.id, 
+					'name': test.name,
+					'description': test.description,
+					'created_time': test.created_time.isoformat(' '),
+					'completed_time': test.completed_time.isoformat(' ')if test.completed_time else '',
+					'scheduled_by' : test.scheduled_by,
+					'category': test.test_category.category_name,
+					'status' : "Running",
+					'total_test_count' : len(test.total_tests)
+				}
+			pass_count = 0
+			fail_count = 0
+			status = "Pending"
+			for sin_test in test.total_tests:
+				if sin_test.request_result and sin_test.response_result:
+					pass_count = pass_count + 1
+				if test.running:
+					status = "Running"
+				elif test.completed:
+					status = "Completed"
+				elif test.paused:
+					status = "Paused"
+				else:
+					status = "Pending"
+				if not (sin_test.request_result or sin_test.response_result ) and ( status != "Pending" ):
+					fail_count = fail_count + 1
+				test_info.update ({ 'pass_count': pass_count,
+								  'fail_count' : fail_count,
+								  'status': status
+							})
+			tests.append(test_info)
+		response_data = { 'form' : render_template('all_test_status.html'),
+	                          'response_data' : {'tests': tests}
+		                        }
+		resp = make_response(jsonify(response_data), 200)
+		return resp
 
 @app.route('/new_tab/<page_id>')
 def load_tab(page_id=0):

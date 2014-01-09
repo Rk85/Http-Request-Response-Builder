@@ -30,6 +30,7 @@ class HttpTest(Base):
 	scheduled_by =  Column("ScheduledBy", String(1000), nullable=False)
 	
 	total_tests = relationship("HttpTestResults", backref="test_global_info")
+	test_category = relationship("HttpRequestCategory", backref="test_global_info")
 
 class HttpTestResults(Base):
 	"""For each scheduled test, we copy all the required informations

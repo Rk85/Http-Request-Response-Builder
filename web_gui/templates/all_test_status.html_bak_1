@@ -1,0 +1,121 @@
+<div>
+<div>
+	<h3 class="text-center"> All Test Status </h3>
+</div>
+<div style="overflow: scroll">
+	<table width=100% id="all_test_table" class="display table table-striped table-bordered table-hover table-condensed">
+		<thead class="dataTableHeader">
+			<tr>
+				<th>Test Id</th>
+				<th>Test Name</th>     
+				<th>Category</th>     
+				<th>Scheduled By</th>     
+				<th>Test Status</th>
+				<th>Total Tests</th>
+				<th>No of Test Passed</th>
+				<th>No of Test Failed</th>
+				<th>Scheduled Time</th>     
+				<th>Completed Time</th>     
+			</tr>
+		</thead>
+		<tbody data-bind="foreach: tests">
+			<tr data-bind="attr: {'class': test_total_status}">
+				<td>
+					<a data-bind="attr: { href: '/test_details/'+ id }">
+						<span data-bind="text: id"></span>
+					</a>
+				</td>
+				<td data-bind="text: name"></td>
+				<td data-bind="text: category"></td>
+				<td data-bind="text: scheduled_by"></td>
+				<td data-bind="text: status"></td>
+				<td data-bind="text: total_test_count"></td>
+				<td data-bind="text: pass_count"></td>
+				<td data-bind="text: fail_count"></td>
+				<td data-bind="text: created_time"></td>
+				<td data-bind="text: completed_time"></td>
+			</tr>
+		</tbody>
+	</table>
+</div
+</div>
+<script>
+(function(httpCompliance, $, undefined){
+
+  httpCompliance.test_details = function(data){
+		var self = this;
+		self.id = data.id;
+		self.name = data.name;
+		self.category = data.category;
+		self.scheduled_by = data.scheduled_by;
+		self.status = data.status;
+		self.total_test_count = data.total_test_count;
+		self.pass_count = data.pass_count;
+		self.fail_count = data.fail_count;
+		self.created_time = data.created_time;
+		self.completed_time = data.completed_time;
+		
+		self.test_total_status = ko.computed(function(){
+			if (self.status === "Pending"){
+				return "warning";
+			}
+			if (self.fail_count ) {
+				return "error";
+			}
+			if ( self.total_test_count === self.pass_count ){
+				return "success";
+			}
+		})
+	}  
+
+	httpCompliance.AllTestViewModel = function(data){
+		var self = this;
+		self.tests = ko.observableArray( $.map(data.tests || [], function(test){
+			return new httpCompliance.test_details(test);
+		} ));
+		self.submitData = function submitData(data, event){
+		};
+	}
+}(Application.namespace("Application.httpCompliance"), jQuery))
+
+var applyFormBindings = function(data, tab_id){
+	ko.applyBindings(new Application.httpCompliance.AllTestViewModel(data), $(tab_id)[0]);
+	$.fn.dataTableExt.oSort['numeric-comma-asc']  = function(a,b) {
+ var x = parseInt( a );
+ var y = parseInt( b );
+ return ((x < y) ? -1 : ((x > y) ?  1 : 0));
+};
+  
+$.fn.dataTableExt.oSort['numeric-comma-desc'] = function(a,b) {
+    var x = parseInt( a );
+    var y = parseInt( b );
+    return ((x < y) ?  1 : ((x > y) ? -1 : 0));
+};
+    var oTable = $("#all_test_table").dataTable({
+		"bJQueryUI": true,
+		aoColumns: [ {
+					sType: "numeric"
+				},
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+		]
+	})
+	filters = 	'<tr><th><input type="text" name="testId" class="input-small"/> </th>                <th><input type="text" name="testName" /> </th>                <th><input type="text" name="category" /> </th>                <th><input type="text" name="scheduled_by" /> </th>                <th><input type="text" name="test_status" /> </th>                <th><input type="text" name="total_tests" /> </th>                <th><input type="text" name="pass_count" /> </th>                <th><input type="text" name="fail_count" /> </th>                <th><input type="text" name="scheduled_time" /> </th>                <th><input type="text" name="completed_time" /> </th>			</tr>'
+	var head = $.find(".dataTableHeader");
+	$(filters).appendTo(head)
+	$("thead input").keyup( function () {
+        /* Filter on the column (the index) of this element */
+        oTable.fnFilter( this.value, $("thead input").index(this) );
+    } );
+	$(".fg-toolbar").remove();
+
+};
+
+</script>
