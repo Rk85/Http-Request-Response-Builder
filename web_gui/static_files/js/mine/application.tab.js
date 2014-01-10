@@ -12,7 +12,7 @@ app.Tab = {
 			app.Tab.closeTab( $(this).closest("li").remove().attr("aria-controls") );
 		});
 	},
-	addTab : function(Title, url) {
+	addTab : function(Title, url, htmlTextOnly) {
 		   // This is called when ever we want to create a new tab
 		   var tabs = $( tab_selecter  ).tabs();
 		   var url_hash = "#" + url;
@@ -42,7 +42,9 @@ app.Tab = {
 					$( new_tab_id ).html(data.form);
 					
 					// Call the Knock out bindings for the newly created page
-					applyFormBindings(data.response_data, new_tab_id);
+					if (htmlTextOnly === undefined || htmlTextOnly === false){
+						applyFormBindings(data.response_data, new_tab_id);
+					}
 
 					// Make the last loaded tab as the active one
 					$(tabs).tabs("option","active", -1 );

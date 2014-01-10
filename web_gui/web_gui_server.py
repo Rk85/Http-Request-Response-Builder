@@ -28,6 +28,55 @@ class MyTemplateLoader(BaseLoader):
         source = "\r\n".join( fd.readlines() )
         return source, path, lambda : False
     
+def format_test_data(test):
+	test_info = {'id': test.id, 
+			'name': test.name,
+			'description': test.description,
+			'created_time': test.created_time.isoformat(' '),
+			'completed_time': test.completed_time.isoformat(' ')if test.completed_time else '',
+			'scheduled_by' : test.scheduled_by,
+			'category': test.test_category.category_name,
+			'status' : "",
+			'total_test_count' : len(test.total_tests),
+			'pass_count': 0,
+			'fail_count': 0
+		}
+	pass_count = 0
+	fail_count = 0
+	status = "Pending"
+	for sin_test in test.total_tests:
+		if sin_test.request_result and sin_test.response_result:
+			pass_count = pass_count + 1
+		if test.running:
+			status = "Running"
+		elif test.completed:
+			status = "Completed"
+		elif test.paused:
+			status = "Paused"
+		else:
+			status = "Pending"
+		if not (sin_test.request_result or sin_test.response_result ) and ( status != "Pending" ):
+			fail_count = fail_count + 1
+	test_info.update ({ 'pass_count': pass_count,
+					  'fail_count' : fail_count,
+					  'status': status
+			})
+	return test_info
+
+def get_search_data():
+	tests = []
+	form_data = request.json if request.json else request.form
+	query = session.query(HttpTest)
+	if form_data.get('test_name'):
+		query = query.filter( HttpTest.name==form_data.get('test_name') )
+	if form_data.get('user_name'):
+		query = query.filter( HttpTest.scheduled_by==form_data.get('user_name') )
+	if form_data.get('category_ids'):
+		query = query.filter( HttpTest.category_id.in_(form_data.get('category_ids') ))
+	
+	for test in query.all():
+		tests.append(format_test_data(test))
+	return tests
 
 @app.route('/')
 def load_index():
@@ -58,47 +107,64 @@ def schedule_new_test():
 		resp = make_response(jsonify(response_data), 200)
 		return resp	
 
-@app.route('/report/all_test', methods=['GET', 'POST'])
-def report_all_test():
+@app.route('/report/test_status', methods=['GET'])
+def report_test_statust():
+	tests = []
+	for test in session.query(HttpTest).all():
+		tests.append(format_test_data(test))
+	response_data = { 'form' : render_template('all_test_status.html'),
+	                      'response_data' : {'tests': tests}
+	                      }
+	resp = make_response(jsonify(response_data), 200)
+	return resp
+
+@app.route('/search_test', methods=['GET', 'POST'])
+def search_test():
 	if request.method == 'GET':
-		tests = []
-		for test in session.query(HttpTest).all():
-			test_info = {'id': test.id, 
-					'name': test.name,
-					'description': test.description,
-					'created_time': test.created_time.isoformat(' '),
-					'completed_time': test.completed_time.isoformat(' ')if test.completed_time else '',
-					'scheduled_by' : test.scheduled_by,
-					'category': test.test_category.category_name,
-					'status' : "Running",
-					'total_test_count' : len(test.total_tests)
-				}
-			pass_count = 0
-			fail_count = 0
-			status = "Pending"
-			for sin_test in test.total_tests:
-				if sin_test.request_result and sin_test.response_result:
-					pass_count = pass_count + 1
-				if test.running:
-					status = "Running"
-				elif test.completed:
-					status = "Completed"
-				elif test.paused:
-					status = "Paused"
-				else:
-					status = "Pending"
-				if not (sin_test.request_result or sin_test.response_result ) and ( status != "Pending" ):
-					fail_count = fail_count + 1
-				test_info.update ({ 'pass_count': pass_count,
-								  'fail_count' : fail_count,
-								  'status': status
-							})
-			tests.append(test_info)
-		response_data = { 'form' : render_template('all_test_status.html'),
-	                          'response_data' : {'tests': tests}
-		                        }
+		data ={'categories': [ {'id': category[0], 'name': category[1] } for category in session.query(HttpRequestCategory.id, HttpRequestCategory.category_name).all()]}
+		response_data = { 'form' : render_template('search_test.html'),
+                          'response_data' : data
+	                        }
 		resp = make_response(jsonify(response_data), 200)
 		return resp
+	else:
+		response_data = { 'form' : render_template('all_test_status.html'),
+							'post_response' : {'tests': get_search_data()}
+			}
+		resp = make_response(jsonify(response_data), 200)
+		return resp
+		
+@app.route('/down_load_excel', methods=['POST'])
+def load_excel():
+	result = get_search_data()
+	excel_data = "<div>"
+	if result:
+		total_colums = len(result[0].keys())
+		excel_data = excel_data + "</table><thead>"
+		for key in result[0].keys():
+			excel_data = excel_data + "<th>" + key + "</th>"
+		excel_data = excel_data + "</thead><tbody>"
+		for item in result:
+			excel_data = excel_data + "<tr>"
+			for td_value in item.values():
+				excel_data = excel_data + "<td>" + str(td_value) + "</td>"
+			excel_data = excel_data + "</tr>"
+		excel_data = excel_data + "</tbody></table>"
+	excel_data = excel_data + "</div>"
+		
+	resp = make_response(excel_data, 200)
+	resp.headers['Content-Type'] = "text/plain"
+	resp.headers['Content-Disposition'] = " attachment;filename=report.xls"
+	return resp
+
+@app.route('/help', methods=['GET', 'POST'])
+def help():
+	response_data = { 'form' : render_template('help.html'),
+                          'response_data' : {}
+	                        }
+	resp = make_response(jsonify(response_data), 200)
+	return resp
+
 
 @app.route('/new_tab/<page_id>')
 def load_tab(page_id=0):
@@ -108,25 +174,6 @@ def load_tab(page_id=0):
                           'response_data' : suites_available
                         }
     resp = make_response(jsonify(response_data), 200)
-    return resp
-
-@app.route('/down_load_excel', methods=['GET', 'POST'])
-def load_excel():
-    if request.method == "POST":
-           print request.form
-    data = "<div>\
-                <table>\
-                <tr>\
-                    <td>header</td>\
-                </tr>\
-                <tr>\
-                    <td>Data</td>\
-                </tr>\
-                </table>\
-            </div>"
-    resp = make_response(data, 200)
-    resp.headers['Content-Type'] = "text/plain"
-    resp.headers['Content-Disposition'] = " attachment;filename=report.xls"
     return resp
 
 

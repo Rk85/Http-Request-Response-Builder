@@ -1,0 +1,124 @@
+<div>
+<div>
+	<h3 class="text-center"> Scheduling New Test </h3>
+</div>
+<div data-bind="visible: searchVisible">
+	<form method="post" action="/down_load_excel" id="search_form" class="form-horizontal">
+	  <div class="control-group">
+		 <label class="control-label">Test Name</label>
+		    <div class="controls">
+			    <input type="text" data-bind="value: testName" placeholder="Test Name">
+			</div>
+  	  </div>
+	  <div class="control-group">
+		    <label class="control-label">User Name</label>
+			<div class="controls"> 
+				<input type="text" data-bind="value: userName" placeholder="Your Name">
+			</div>
+	  </div>
+	  <div class="control-group">
+		    <label class="control-label">Test Category to run </label>
+			<div class="controls"> 
+				<select data-bind="options: availableCategories, optionsText: 'name', selectedOptions: selectedCategories" size="5" multiple="true"></select>
+			</div>
+	  </div>
+	</form>
+</div>
+<div data-bind="ifnot: searchVisible, visible: searchResults().length != 0">
+	<table width=100% id="search_test_table" class="display table table-striped table-bordered table-hover table-condensed">
+        <thead class="dataTableHeader">
+            <tr>
+                <th>Test Id</th>
+                <th>Test Name</th>
+                <th>Category</th>
+                <th>Scheduled By</th>
+                <th>Test Status</th>
+                <th>Total Tests</th>
+                <th>No of Test Passed</th>
+                <th>No of Test Failed</th>
+                <th>Scheduled Time</th>
+                <th>Completed Time</th>
+            </tr>
+        </thead>
+        <tbody data-bind="foreach: searchResults">
+            <tr>
+                <td>
+                    <a data-bind="attr: { href: '/test_details/'+ id }">
+                        <span data-bind="text: id"></span>
+                    </a>
+                </td>
+                <td data-bind="text: name"></td>
+                <td data-bind="text: category"></td>
+                <td data-bind="text: scheduled_by"></td>
+                <td data-bind="text: status"></td>
+                <td data-bind="text: total_test_count"></td>
+                <td data-bind="text: pass_count"></td>
+                <td data-bind="text: fail_count"></td>
+                <td data-bind="text: created_time"></td>
+                <td data-bind="text: completed_time"></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="form-horizontal control-group">
+	<div class="controls"> 
+		<button class="btn" data-bind="click: searchTest, visible: searchVisible">Search</button>
+		<h5 data-bind="visible: ( !searchVisible() && searchResults().length == 0)"> No Test Found </h5>
+		<button class="btn" data-bind="click: resetSearchOption, visible: !searchVisible()">Reset Search</button>
+		<button class="btn" data-bind="click: exportData, visible: ( !searchVisible() && searchResults().length != 0)">Export</button>
+	</div>
+ </div>
+</div>
+<script>
+(function(httpCompliance, $, undefined){
+  
+
+  httpCompliance.searchTest = function(data){
+    var self = this;
+	self.testName = ko.observable();
+	self.userName = ko.observable();
+    self.availableCategories = ko.observableArray( data.categories || [] );
+    self.selectedCategories = ko.observable();
+	self.searchResults = ko.observableArray([]);
+	self.searchVisible = ko.observable(true);
+	
+	self.resetSearchOption = function resetSearchOption(){
+		self.testName('');
+		self.userName('');
+		self.selectedCategories([]);
+		self.searchResults([]);
+		self.searchVisible(true);
+	}
+	
+	self.exportData = function exportData(){
+		$("#search_form").submit();
+	}
+	
+    self.searchTest = function searchTest(data, event){
+		self.searchVisible(false);
+		postData = { test_name : self.testName() || '',
+				user_name : self.userName() || '',
+				category_ids : $.map(self.selectedCategories() || [], function(category){
+								return category.id;
+				})
+		}
+		$.ajax({ type: "POST",
+					url: "/search_test",
+					data: ko.toJSON(postData),
+					contentType: "application/json; charset=utf-8",
+					dataType: "json",
+					success: function(result) {
+						self.searchResults(result.post_response.tests);
+					}
+				}).fail(function(){
+			$.prompt("Unknown Error at server side");
+		})
+    };
+	}
+}(Application.namespace("Application.httpCompliance"), jQuery))
+
+var applyFormBindings = function(data, tab_id){
+	ko.applyBindings(new Application.httpCompliance.searchTest(data), $(tab_id)[0]);
+};
+
+</script>

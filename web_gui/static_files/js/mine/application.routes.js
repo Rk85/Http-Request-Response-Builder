@@ -21,20 +21,15 @@ Application.Routing = {
 					var url = "/search_test"
 					Application.Tab.addTab("Test Search" , url );
 				});
-				this.get("#/report/all_test", function(context){
+				this.get("#/report/test_status", function(context){
 					context.log("#/report/all_test");
-					var url = "/report/all_test"
+					var url = "/report/test_status"
 					Application.Tab.addTab("Report - All Tests" , url );
-				});
-				this.get("#/report/running_test", function(context){
-					context.log("#/report/running_test");
-					var url = "/report/running_test"
-					Application.Tab.addTab("Report - Running Tests" , url );
 				});
 				this.get("#/help", function(context){
 					context.log("#/help");
 					var url = "/help"
-					Application.Tab.addTab("Help Page" , url );
+					Application.Tab.addTab("Help Page" , url, true);
 				});
 
 			});
