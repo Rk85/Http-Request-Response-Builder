@@ -107,6 +107,26 @@ def schedule_new_test():
 		resp = make_response(jsonify(response_data), 200)
 		return resp	
 
+@app.route('/test_details/<int:test_id>', methods=['GET', 'POST'])
+def load_test_details(test_id=0):
+	test = session.query(HttpTest).get(test_id)
+	if request.method == 'GET':
+		response_data = {  'form' : render_template('test_details.html'),
+	                          'response_data' : {'test_details': {}}
+	                    }
+		if test:
+			response_data['response_data']['test_details'] = format_test_data(test)
+		resp = make_response(jsonify(response_data), 200)
+		return resp
+	else:
+		form_data = request.json if request.json else request.form
+		test.paused = form_data.get('pause')
+		test.running = not form_data.get('pause')
+		session.commit()
+		response_data = { 'post_response': { 'test_details' : format_test_data(test) }}
+		resp = make_response(jsonify(response_data), 200)
+		return resp
+
 @app.route('/report/test_status', methods=['GET'])
 def report_test_statust():
 	tests = []
@@ -165,16 +185,6 @@ def help():
 	resp = make_response(jsonify(response_data), 200)
 	return resp
 
-
-@app.route('/new_tab/<page_id>')
-def load_tab(page_id=0):
-    resp = ''
-    suites_available ={'suites': [ {'name': 'disk', 'id':1, 'selected':False}, {'name': 'disk1', 'id':2, 'selected':True}] }
-    response_data = { 'form' : render_template('sample_with_controls - 1.html'),
-                          'response_data' : suites_available
-                        }
-    resp = make_response(jsonify(response_data), 200)
-    return resp
 
 
 app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {

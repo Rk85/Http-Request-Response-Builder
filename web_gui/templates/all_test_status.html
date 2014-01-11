@@ -18,42 +18,54 @@
 				<th>Completed Time</th>     
 			</tr>
 		</thead>
-		<tbody data-bind="foreach: tests">
-			<tr data-bind="attr: {'class': test_total_status}">
-				<td>
-					<a data-bind="attr: { href: '/test_details/'+ id }">
-						<span data-bind="text: id"></span>
-					</a>
-				</td>
-				<td data-bind="text: name"></td>
-				<td data-bind="text: category"></td>
-				<td data-bind="text: scheduled_by"></td>
-				<td data-bind="text: status"></td>
-				<td data-bind="text: total_test_count"></td>
-				<td data-bind="text: pass_count"></td>
-				<td data-bind="text: fail_count"></td>
-				<td data-bind="text: created_time"></td>
-				<td data-bind="text: completed_time"></td>
-			</tr>
-		</tbody>
 	</table>
 </div
 </div>
 <script>
 (function(httpCompliance, $, undefined){
 
-  httpCompliance.test_details = function(data){
+	httpCompliance.AllTestViewModel = function AllTestViewModel(data){
 		var self = this;
-		self.id = data.id;
-		self.name = data.name;
-		self.category = data.category;
-		self.scheduled_by = data.scheduled_by;
-		self.status = data.status;
-		self.total_test_count = data.total_test_count;
-		self.pass_count = data.pass_count;
-		self.fail_count = data.fail_count;
-		self.created_time = data.created_time;
-		self.completed_time = data.completed_time;
+		
+		self.formatTableData = function formatTableData(test){
+         	return [
+                ['<a href= "#/test_details/' + test.id +'"> <span>' + test.id + '</span></a>',
+                test.name,
+                test.category,
+                test.scheduled_by,
+                test.status,
+                test.total_test_count,
+                test.pass_count,
+                test.fail_count,
+                test.created_time,
+                test.completed_time]
+            ]
+    	} 
+		
+		self.tests = ko.observableArray( $.map(data.tests || [], function(test){
+			return self.formatTableData(test);
+		} ));
+		
+		self.initDataTable = function initDataTable(){
+			var options = {
+				"bJQueryUI": true,
+				aoColumns: [ {
+								"sType": "numeric"
+						},
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null
+					],
+				aaData: self.tests()
+			}
+			Application.dataTable.Init("#all_test_table", options, true);
+    	}
 		
 		self.test_total_status = ko.computed(function(){
 			if (self.status === "Pending"){
@@ -66,37 +78,12 @@
 				return "success";
 			}
 		})
-	}  
-
-	httpCompliance.AllTestViewModel = function(data){
-		var self = this;
-		self.tests = ko.observableArray( $.map(data.tests || [], function(test){
-			return new httpCompliance.test_details(test);
-		} ));
-		self.submitData = function submitData(data, event){
-		};
+		self.initDataTable()
 	}
 }(Application.namespace("Application.httpCompliance"), jQuery))
 
 var applyFormBindings = function(data, tab_id){
 	ko.applyBindings(new Application.httpCompliance.AllTestViewModel(data), $(tab_id)[0]);
-	var	options = {
-        "bJQueryUI": true,
-        aoColumns: [ {
-                    "sType": "numeric"
-                },
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-        ]
-    }
-	Application.dataTable.Init("#all_test_table", options);
 };
 
 </script>

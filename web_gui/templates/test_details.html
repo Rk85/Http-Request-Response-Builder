@@ -1,0 +1,79 @@
+<div>
+<div>
+	<h3 class="text-center"> Test Details </h3>
+</div>
+<div data-bind="if: test_details" >
+	<table width=100% id="single_test_table" class="display table table-striped table-bordered table-hover table-condensed">
+        <thead>
+            <tr>
+                <th>Test Name</th>
+                <th>Category</th>
+                <th>Scheduled By</th>
+                <th>Test Status</th>
+                <th>Total Tests</th>
+                <th>No of Test Passed</th>
+                <th>No of Test Failed</th>
+                <th>Scheduled Time</th>
+                <th>Completed Time</th>
+            </tr>
+        </thead>
+		<tbody>
+			<tr data-bind="with: test_details">
+				<td data-bind="text:name"></td>
+				<td data-bind="text:category"></td>
+				<td data-bind="text:scheduled_by"></td>
+				<td><span data-bind="text: status"></span>
+					<a data-bind="if: status=='Paused', click: $parent.restartTest"> Restart Test </a>
+					<a data-bind="if: status=='Running', click: $parent.pauseTest"> Pause Test </a>
+				</td>
+				<td data-bind="text:total_test_count"></td>
+				<td data-bind="text:pass_count"></td>
+				<td data-bind="text:fail_count"></td>
+				<td data-bind="text:created_time"></td>
+				<td data-bind="text:completed_time"></td>
+			</tr>
+		</tbody>
+    </table>
+</div>
+<div class="controls" data-bind="ifnot: test_details"> 
+	<h5> No Test Found </h5>
+</div>
+</div>
+<script>
+(function(httpCompliance, $, undefined){
+  
+
+	httpCompliance.testDetailsViewModel = function testDetailsviewModel(data){
+    	var self = this;
+		var postData = {}
+		self.test_details = ko.observable(data.test_details || {} );
+		self.restartTest = function restartTest(){
+			postData.pause = false;
+			self.modifyTest(postData);
+		}
+		self.pauseTest = function pauseTest(){
+			postData.pause = true;
+			self.modifyTest(postData);
+		}
+		self.modifyTest = function modifyTest(postData){
+			$.ajax({ type: "POST",
+					 	url: "/test_details/"+self.test_details().id,
+						data: ko.toJSON(postData),
+                    	contentType: "application/json; charset=utf-8",
+                    	dataType: "json",
+                    	success: function(result) {
+							self.test_details(result.post_response.test_details);
+						}
+			}).fail(function(){
+				$.prompt("Unknown Error at server side");
+			})
+		}
+	}
+}(Application.namespace("Application.httpCompliance"), jQuery))
+
+var applyFormBindings = function(data, tab_id){
+	ko.applyBindings(new Application.httpCompliance.testDetailsViewModel(data), $(tab_id)[0]);
+
+};
+
+</script>

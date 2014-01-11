@@ -6,8 +6,8 @@ Application.Routing = {
 					context.log("MAIN");
 					
 				});
-				this.get("#/test/:ID", function(context){
-					var url = "/scheduled_test/" + this.params['ID'];
+				this.get("#/test_details/:ID", function(context){
+					var url = "/test_details/" + this.params['ID'];
 					Application.Tab.addTab("TEST ID : " + this.params['ID'] , url );
 					context.log("NEW");
 				});

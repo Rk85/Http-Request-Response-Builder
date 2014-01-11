@@ -1,6 +1,6 @@
 <div>
 <div>
-	<h3 class="text-center"> Scheduling New Test </h3>
+	<h3 class="text-center"> Search Scheduled Test </h3>
 </div>
 <div data-bind="visible: searchVisible">
 	<form method="post" action="/down_load_excel" id="search_form" class="form-horizontal">
@@ -24,7 +24,7 @@
 	  </div>
 	</form>
 </div>
-<div data-bind="ifnot: searchVisible, visible: searchResults().length != 0">
+<div data-bind="ifnot: searchVisible" >
 	<table width=100% id="search_test_table" class="display table table-striped table-bordered table-hover table-condensed">
         <thead class="dataTableHeader">
             <tr>
@@ -40,27 +40,10 @@
                 <th>Completed Time</th>
             </tr>
         </thead>
-        <tbody data-bind="foreach: searchResults">
-            <tr>
-                <td>
-                    <a data-bind="attr: { href: '/test_details/'+ id }">
-                        <span data-bind="text: id"></span>
-                    </a>
-                </td>
-                <td data-bind="text: name"></td>
-                <td data-bind="text: category"></td>
-                <td data-bind="text: scheduled_by"></td>
-                <td data-bind="text: status"></td>
-                <td data-bind="text: total_test_count"></td>
-                <td data-bind="text: pass_count"></td>
-                <td data-bind="text: fail_count"></td>
-                <td data-bind="text: created_time"></td>
-                <td data-bind="text: completed_time"></td>
-            </tr>
-        </tbody>
     </table>
 </div>
 <div class="form-horizontal control-group">
+	<br>
 	<div class="controls"> 
 		<button class="btn" data-bind="click: searchTest, visible: searchVisible">Search</button>
 		<h5 data-bind="visible: ( !searchVisible() && searchResults().length == 0)"> No Test Found </h5>
@@ -73,7 +56,7 @@
 (function(httpCompliance, $, undefined){
   
 
-  httpCompliance.searchTest = function(data){
+  httpCompliance.searchTestViewModel = function searchTestViewModel(data){
     var self = this;
 	self.testName = ko.observable();
 	self.userName = ko.observable();
@@ -94,6 +77,42 @@
 		$("#search_form").submit();
 	}
 	
+	self.initDataTable = function initDataTable(){
+		var options = {
+	        "bJQueryUI": true,
+	        aoColumns: [ {
+	                    "sType": "numeric"
+	                },
+	                null,
+	                null,
+	                null,
+	                null,
+	                null,
+	                null,
+	                null,
+	                null,
+	                null,
+        	],
+			aaData: self.searchResults()
+    	}
+    	Application.dataTable.Init("#search_test_table", options, true);
+	}
+	
+	self.formatTableData = function formatTableData(test){
+		 return	[
+				['<a href= "#/test_details/' + test.id +'"> <span>' + test.id + '</span></a>',
+		       	test.name,
+        		test.category,
+	          	test.scheduled_by,
+                test.status,
+                test.total_test_count,
+                test.pass_count,
+                test.fail_count,
+                test.created_time,
+                test.completed_time]
+            ]
+	}	
+
     self.searchTest = function searchTest(data, event){
 		self.searchVisible(false);
 		postData = { test_name : self.testName() || '',
@@ -108,7 +127,10 @@
 					contentType: "application/json; charset=utf-8",
 					dataType: "json",
 					success: function(result) {
-						self.searchResults(result.post_response.tests);
+						self.searchResults($.map(result.post_response.tests || [],function(test){
+										 	return self.formatTableData(test);
+										}))
+						self.initDataTable();
 					}
 				}).fail(function(){
 			$.prompt("Unknown Error at server side");
@@ -118,7 +140,8 @@
 }(Application.namespace("Application.httpCompliance"), jQuery))
 
 var applyFormBindings = function(data, tab_id){
-	ko.applyBindings(new Application.httpCompliance.searchTest(data), $(tab_id)[0]);
+	ko.applyBindings(new Application.httpCompliance.searchTestViewModel(data), $(tab_id)[0]);
+
 };
 
 </script>
