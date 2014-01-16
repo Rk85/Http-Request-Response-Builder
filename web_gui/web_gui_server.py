@@ -9,8 +9,9 @@ cwd = os.path.normpath(os.getcwd() + "/../")
 sys.path.append(cwd)
 from db_tables.db_base import session
 from db_tables.http_request import HttpRequestCategory
-from db_tables.http_tests import HttpTest
+from db_tables.http_tests import HttpTest, HttpTestResults
 from models.new_test_insert import load_tests
+from sqlalchemy.sql.expression import and_, or_
 
 app = Flask(__name__)
 
@@ -47,21 +48,40 @@ def format_test_data(test):
 	for sin_test in test.total_tests:
 		if sin_test.request_result and sin_test.response_result:
 			pass_count = pass_count + 1
-		if test.running:
-			status = "Running"
-		elif test.completed:
+		if test.completed:
 			status = "Completed"
+		elif test.running:
+			status = "Running"
 		elif test.paused:
 			status = "Paused"
 		else:
 			status = "Pending"
-		if not (sin_test.request_result or sin_test.response_result ) and ( status != "Pending" ):
+		if not (sin_test.request_result and sin_test.response_result ) and ( status != "Pending" ):
 			fail_count = fail_count + 1
 	test_info.update ({ 'pass_count': pass_count,
 					  'fail_count' : fail_count,
 					  'status': status
 			})
 	return test_info
+
+def format_test_case_data(data):
+	test_case_info = {
+		'id': data.id,
+		'test_id': data.test_id,
+		'request_id': data.request_id,
+		'sub_request_id': data.sub_request_id,
+		'response_id': data.response_id,
+		'sub_response_id' : data.sub_response_id,
+		'request_result': data.request_result,
+		'response_result': data.response_result,
+		'is_running': data.is_running,
+		'is_completed': data.is_completed,
+		'created_time': data.created_time.isoformat(' '),
+		'last_changed_time': data.last_changed_time.isoformat(' '),
+		'server_failure_reason': data.server_http_faliure.reason if data.server_http_faliure else None,
+		'client_failure_reason': data.client_http_faliure.reason if data.client_http_faliure else None
+	}
+	return test_case_info
 
 def get_search_data():
 	tests = []
@@ -127,11 +147,27 @@ def load_test_details(test_id=0):
 		resp = make_response(jsonify(response_data), 200)
 		return resp
 
+@app.route('/testcase_details/<int:test_id>', methods=['GET'])
+def load_testcase_details(test_id=0):
+	test_result_type = request.args.get('test_result_type', True)
+	query = session.query(HttpTestResults)
+	if test_result_type:
+		print test_result_type
+		query = query.filter(and_(HttpTestResults.request_result==test_result_type, HttpTestResults.response_result==test_result_type))
+	else:
+		print test_result_type
+		query = query.filter(or_(HttpTestResults.request_result==test_result_type, HttpTestResults.response_result==test_result_type))
+	test_cases = [ format_test_case_data(testcase) for testcase in query.all() ]
+	response_data = {  'form' : render_template('test_details.html'),
+						'response_data' : {'testcase_details': test_cases}
+			}
+	resp = make_response(jsonify(response_data), 200)
+	return resp
+
+
 @app.route('/report/test_status', methods=['GET'])
 def report_test_statust():
-	tests = []
-	for test in session.query(HttpTest).all():
-		tests.append(format_test_data(test))
+	tests = [ format_test_data(test)	for test in session.query(HttpTest).all() ]
 	response_data = { 'form' : render_template('all_test_status.html'),
 	                      'response_data' : {'tests': tests}
 	                      }

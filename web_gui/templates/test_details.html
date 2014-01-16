@@ -2,78 +2,171 @@
 <div>
 	<h3 class="text-center"> Test Details </h3>
 </div>
-<div data-bind="if: test_details" >
-	<table width=100% id="single_test_table" class="display table table-striped table-bordered table-hover table-condensed">
-        <thead>
-            <tr>
-                <th>Test Name</th>
-                <th>Category</th>
-                <th>Scheduled By</th>
-                <th>Test Status</th>
-                <th>Total Tests</th>
-                <th>No of Test Passed</th>
-                <th>No of Test Failed</th>
-                <th>Scheduled Time</th>
-                <th>Completed Time</th>
-            </tr>
-        </thead>
-		<tbody>
-			<tr data-bind="with: test_details">
-				<td data-bind="text:name"></td>
-				<td data-bind="text:category"></td>
-				<td data-bind="text:scheduled_by"></td>
-				<td><span data-bind="text: status"></span>
-					<a data-bind="if: status=='Paused', click: $parent.restartTest"> Restart Test </a>
-					<a data-bind="if: status=='Running', click: $parent.pauseTest"> Pause Test </a>
-				</td>
-				<td data-bind="text:total_test_count"></td>
-				<td data-bind="text:pass_count"></td>
-				<td data-bind="text:fail_count"></td>
-				<td data-bind="text:created_time"></td>
-				<td data-bind="text:completed_time"></td>
-			</tr>
-		</tbody>
-    </table>
+<div class="controls" data-bind="ifnot: testDetails"> 
+	<h5> Test Not Found </h5>
 </div>
-<div class="controls" data-bind="ifnot: test_details"> 
-	<h5> No Test Found </h5>
+<div class="row-fluid">
+	<div class="span6" data-bind="if: testDetails" > <div data-bind="attr: { id: chartId}"></div></div>
+	<div class="span6">
+		<div data-bind="if: testDetails" >
+			<table width=100% id="single_test_table" class="display table table-striped table-bordered table-hover table-condensed">
+				<tbody data-bind="with: testDetails">
+					<tr><td>Test Name</td>
+						<td data-bind="text:name"></td>
+					<tr>
+					<tr><td>Description</td>
+						<td data-bind="text:description"></td>
+					<tr>
+					<tr><td>Category</td>
+						<td data-bind="text:category"></td>
+					<tr>
+					<tr><td>Scheduled By</td>
+						<td data-bind="text:scheduled_by"></td>
+					<tr>
+					<tr><td>Test Status</td>
+						<td><span data-bind="text: status"></span>
+						</td>
+					<tr>
+					<tr><td>Total Tests</td>
+						<td data-bind="text:total_test_count"></td>
+					<tr>
+					<tr><td>No of Test Passed</td>
+						<td><span data-bind="text:pass_count"></span>
+							<a class="btn btn-info" data-bind="visible: pass_count, click: function(data, event) { $parent.getTestCasedetails(true) }"> Pass Details </a>
+						</td>
+					<tr>
+					<tr><td>No of Test Failed</td>
+						<td><span data-bind="text:fail_count"></span>
+							<a class="btn btn-info" data-bind="visible: fail_count, click: function(data, event) { $parent.getTestCasedetails(false) }"> Fail Details </a>
+						</td>
+					<tr>
+					<tr><td>Scheduled Time</td>
+						<td data-bind="text:created_time"></td>
+					<tr>
+					<tr><td>Completed Time</td>
+						<td data-bind="text:completed_time"></td>
+					<tr>
+				</tbody>
+		    </table>
+		</div>
+		<div data-bind="if: testDetails">
+			<a class="btn btn-success" data-bind="visible: testDetails().status=='Paused', click: function(data, event) { modifyTestStatus(false) }"> Restart Test </a>
+			<a class="btn btn-success" data-bind="visible: testDetails().status=='Running', click:  function(data, event) { modifyTestStatus(true) }"> Pause Test </a>
+		</div>
+	</div>
+</div>
+<div data-bind="if: testCaseDetails().length !=0">
+	 <h5 class="pull-left" data-bind="text: testCaseHeader"> </h5>
+	<table id="test_case_results" class="pull-left display table table-striped table-bordered table-hover table-condensed">
+		<thead>
+			<th>ID</th>
+			<th>Client Failure</th>
+			<th>Server Failure</th>
+		</thead>
+	</table>
 </div>
 </div>
 <script>
 (function(httpCompliance, $, undefined){
-  
-
 	httpCompliance.testDetailsViewModel = function testDetailsviewModel(data){
-    	var self = this;
-		var postData = {}
-		self.test_details = ko.observable(data.test_details || {} );
-		self.restartTest = function restartTest(){
-			postData.pause = false;
-			self.modifyTest(postData);
-		}
-		self.pauseTest = function pauseTest(){
-			postData.pause = true;
-			self.modifyTest(postData);
-		}
-		self.modifyTest = function modifyTest(postData){
+		var self = this;
+		self.testDetails = ko.observable(data.test_details.id ? data.test_details : null);
+		self.testCaseDetails = ko.observableArray([])
+		self.testCaseHeader = ko.observable('');
+		
+		self.formatTableData = function formatTableData(testCase){
+            return [
+                [testCase.id,
+				 testCase.client_failure_reason,
+				 testCase.server_failure_reason
+                ]
+            ]
+        } 
+		
+		self.initDataTable = function initDataTable(){
+            var options = {
+                "bJQueryUI": true,
+                "bPaginate": false,
+                aoColumns: [ {
+                                "sType": "numeric"
+                        },
+						null,
+						null
+                    ],
+                aaData: self.testCaseDetails()
+            }
+            Application.dataTable.Init("#test_case_results", options, false);
+        }
+		
+		self.modifyTestStatus = function (data, event){
+			var postData = { pause: data}
 			$.ajax({ type: "POST",
-					 	url: "/test_details/"+self.test_details().id,
+					 	url: "/test_details/"+self.testDetails().id,
 						data: ko.toJSON(postData),
                     	contentType: "application/json; charset=utf-8",
                     	dataType: "json",
                     	success: function(result) {
-							self.test_details(result.post_response.test_details);
+							self.testDetails(result.post_response.test_details);
 						}
 			}).fail(function(){
 				$.prompt("Unknown Error at server side");
 			})
 		}
+	
+		self.getTestCasedetails = function details(data){
+			self.testCaseDetails([]);
+			self.testCaseHeader(data ? "Passed Test Case Details" : "Failed Test Case Details");
+			var postData = { test_result_type: data}
+			$.ajax({ type: "GET",
+                        url: "/testcase_details/"+self.testDetails().id,
+                        data: postData,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function(result) {
+							
+                            self.testCaseDetails($.map(result.response_data.testcase_details || [], function(testCase){
+																return self.formatTableData(testCase);
+											}
+								));
+							self.initDataTable();
+                        }
+            }).fail(function(){
+                $.prompt("Unknown Error at server side");
+            });
+		}
+		
+		self.chartId = ko.observable("chart_id_");
+		self.initChart = function initChart(){
+			if ( self.testDetails() ) {
+				self.chartId(self.testDetails() ? "chart_id_" + self.testDetails().id : 0);
+				var data = [
+		    		['Passed', self.testDetails().pass_count], 
+			    	['Failed', self.testDetails().fail_count], 
+			    	['Pending', self.testDetails().total_test_count - (self.testDetails().pass_count + self.testDetails().fail_count)], 
+				];
+				var plot1 = jQuery.jqplot (self.chartId(), [data], 
+				    { 
+		    		  seriesDefaults: {
+			    	    	// Make this a pie chart.
+			        		renderer: jQuery.jqplot.PieRenderer, 
+				        	rendererOptions: {
+				          	// Put data labels on the pie slices.
+				          	// By default, labels show the percentage of the slice.
+				          		showDataLabels: true
+				        	}
+			      		},
+						legend: { show:true, location: 'e' }
+	    			});
+			}
+		}
 	}
 }(Application.namespace("Application.httpCompliance"), jQuery))
 
 var applyFormBindings = function(data, tab_id){
-	ko.applyBindings(new Application.httpCompliance.testDetailsViewModel(data), $(tab_id)[0]);
-
+	var model = new Application.httpCompliance.testDetailsViewModel(data)
+	ko.applyBindings(model, $(tab_id)[0]);
+	model.initChart();
 };
 
 </script>
+
