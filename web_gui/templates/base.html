@@ -49,16 +49,40 @@
 	{% block title %}{% endblock %} - My Webpage
 </title>
 
-<body class=body">
+<body>
+	<div class="content">
 	<div id="loader">
 		<img id="loading-image" src="../static_files/images/ajax-loader.gif" > </img>
 	</div>
 	<div id="main">
 		{% block content %}{% endblock %}
 	</div>
-	
-	
+	</div>
+	<div id="footer">
+		<p class="muted credit">Testing</p>
+	</div>
 </body>
-
+<script type="text/html" id="menu_list">
+    <div class="row-fluid">
+		<div class="span2 pull-left-corner side-bar-section">
+	        <ul class="nav nav-pills pull-left nav-stacked">
+	            <li class="dropdown-submenu menu-list" >
+	                <a>Test</a>
+	                <ul class="dropdown-menu" >
+	                    <li ><a href="#/schedule_new_test"> Schedule New Test</a></li>
+	                    <li><a href="#/search_test">Search Test</a></li>
+	                </ul>
+	            </li>
+	            <li class="dropdown-submenu menu-list" >
+	                <a>Status Report</a>
+	                <ul class="dropdown-menu" >
+	                    <li><a href="#/report/test_status">Test Status</a></li>
+	                </ul>
+	            </li>
+	            <li class="pull-left menu-list" ><a href="#/help">Help</a></li>
+	        </ul>
+	     </div>
+	</div>
+</script>
 
 </html>

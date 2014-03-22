@@ -57,7 +57,7 @@
 </div>
 <div data-bind="if: testCaseDetails().length !=0">
 	 <h5 class="pull-left" data-bind="text: testCaseHeader"> </h5>
-	<table id="test_case_results" class="pull-left display table table-striped table-bordered table-hover table-condensed">
+	<table data-bind='attr: {id: "test_case_results_"+testDetails().id}' class="pull-left display table table-striped table-bordered table-hover table-condensed">
 		<thead>
 			<th>ID</th>
 			<th>Client Failure</th>
@@ -95,7 +95,7 @@
                     ],
                 aaData: self.testCaseDetails()
             }
-            Application.dataTable.Init("#test_case_results", options, false);
+            Application.dataTable.Init("#test_case_results_"+self.testDetails().id, options, false);
         }
 		
 		self.modifyTestStatus = function (data, event){

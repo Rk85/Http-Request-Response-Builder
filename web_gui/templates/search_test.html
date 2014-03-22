@@ -1,56 +1,62 @@
-<div>
-<div>
-	<h3 class="text-center"> Search Scheduled Test </h3>
-</div>
-<div data-bind="visible: searchVisible">
-	<form method="post" action="/down_load_excel" id="search_form" class="form-horizontal">
-	  <div class="control-group">
-		 <label class="control-label">Test Name</label>
-		    <div class="controls">
-			    <input type="text" data-bind="value: testName" placeholder="Test Name">
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div>
+			<div>
+				<h3 class="text-center"> Search Scheduled Test </h3>
 			</div>
-  	  </div>
-	  <div class="control-group">
-		    <label class="control-label">User Name</label>
-			<div class="controls"> 
-				<input type="text" data-bind="value: userName" placeholder="Your Name">
+			<div data-bind="visible: searchVisible">
+				<form method="post" action="/down_load_excel" id="search_form" class="form-horizontal">
+					<div class="control-group">
+						<label class="control-label">Test Name</label>
+					    <div class="controls">
+						    <input type="text" data-bind="value: testName" placeholder="Test Name">
+						</div>
+				  	</div>
+				 	<div class="control-group">
+				    	<label class="control-label">User Name</label>
+						<div class="controls"> 
+							<input type="text" data-bind="value: userName" placeholder="Your Name">
+						</div>
+					</div>
+					<div class="control-group">
+				    	<label class="control-label">Test Category to run </label>
+						<div class="controls"> 
+							<select data-bind="options: availableCategories, optionsText: 'name', selectedOptions: selectedCategories" size="5" multiple="true"></select>
+						</div>
+					</div>
+				</form>
 			</div>
-	  </div>
-	  <div class="control-group">
-		    <label class="control-label">Test Category to run </label>
-			<div class="controls"> 
-				<select data-bind="options: availableCategories, optionsText: 'name', selectedOptions: selectedCategories" size="5" multiple="true"></select>
+			<div data-bind="ifnot: searchVisible" >
+				<div>
+					<table width=100% id="search_test_table" class="display table table-striped table-bordered table-hover table-condensed">
+				        <thead class="dataTableHeader">
+				            <tr>
+				                <th>Test Id</th>
+				                <th>Test Name</th>
+				                <th>Category</th>
+				                <th>Scheduled By</th>
+				                <th>Test Status</th>
+				                <th>Total Tests</th>
+				                <th>No of Test Passed</th>
+				                <th>No of Test Failed</th>
+				                <th>Scheduled Time</th>
+				                <th>Completed Time</th>
+			    	        </tr>
+			        	</thead>
+				    </table>
+				</div>
 			</div>
-	  </div>
-	</form>
-</div>
-<div data-bind="ifnot: searchVisible" >
-	<table width=100% id="search_test_table" class="display table table-striped table-bordered table-hover table-condensed">
-        <thead class="dataTableHeader">
-            <tr>
-                <th>Test Id</th>
-                <th>Test Name</th>
-                <th>Category</th>
-                <th>Scheduled By</th>
-                <th>Test Status</th>
-                <th>Total Tests</th>
-                <th>No of Test Passed</th>
-                <th>No of Test Failed</th>
-                <th>Scheduled Time</th>
-                <th>Completed Time</th>
-            </tr>
-        </thead>
-    </table>
-</div>
-<div class="form-horizontal control-group">
-	<br>
-	<div class="controls"> 
-		<button class="btn" data-bind="click: searchTest, visible: searchVisible">Search</button>
-		<h5 data-bind="visible: ( !searchVisible() && searchResults().length == 0)"> No Test Found </h5>
-		<button class="btn" data-bind="click: resetSearchOption, visible: !searchVisible()">Reset Search</button>
-		<button class="btn" data-bind="click: exportData, visible: ( !searchVisible() && searchResults().length != 0)">Export</button>
+			<div class="form-horizontal control-group">
+				<br>
+				<div class="controls"> 
+					<button class="btn" data-bind="click: searchTest, visible: searchVisible">Search</button>
+					<h5 data-bind="visible: ( !searchVisible() && searchResults().length == 0)"> No Test Found </h5>
+					<button class="btn" data-bind="click: resetSearchOption, visible: !searchVisible()">Reset Search</button>
+					<button class="btn" data-bind="click: exportData, visible: ( !searchVisible() && searchResults().length != 0)">Export</button>
+				</div>
+			 </div>
+		</div>
 	</div>
- </div>
 </div>
 <script>
 (function(httpCompliance, $, undefined){

@@ -1,40 +1,44 @@
-<div>
-<div>
-	<h3 class="text-center"> Scheduling New Test </h3>
-</div>
-<div>
-	<form class="form-horizontal">
-	  <div class="control-group">
-		 <label class="control-label">Test Name</label>
-		    <div class="controls">
-			    <input type="text" data-bind="value: testName" placeholder="Test Name">
+<div class="form">
+	<div class="row-fluid">
+        <div>
+			<div>
+				<h3 class="text-center"> Scheduling New Test </h3>
 			</div>
-  	  </div>
-	  <div class="control-group">
-		    <label class="control-label">User Name</label>
-			<div class="controls"> 
-				<input type="text" data-bind="value: userName" placeholder="Your Name">
+			<div>
+				<form class="form-horizontal">
+					<div class="control-group">
+						<label class="control-label">Test Name</label>
+					    <div class="controls">
+			    			<input type="text" data-bind="value: testName" placeholder="Test Name">
+						</div>
+				  	</div>
+					<div class="control-group">
+		  				<label class="control-label">User Name</label>
+						<div class="controls"> 
+							<input type="text" data-bind="value: userName" placeholder="Your Name">
+						</div>
+					</div>
+					<div class="control-group">
+	 					<label class="control-label">Text Description</label>
+    					<div class="controls">
+							<textarea data-bind="value: testDescription" > </textarea>
+		    			</div>
+				 	</div>
+					<div class="control-group">
+		  				<label class="control-label">Test Category to run </label>
+						<div class="controls"> 
+							<select data-bind="options: availableCategories, optionsText: 'name', optionsCaption:'Please select Category', value: selectedCategory" ></select>
+						</div>
+					</div>
+					<div class="control-group">
+						<div class="controls"> 
+							<button class="btn" data-bind="click: submitData">Submit</button>
+						</div>
+					</div>
+				</form>
 			</div>
-	  </div>
-	  <div class="control-group">
-	    <label class="control-label">Text Description</label>
-    		<div class="controls">
-				 <textarea data-bind="value: testDescription" > </textarea>
-		    </div>
-	  </div>
-	  <div class="control-group">
-		    <label class="control-label">Test Category to run </label>
-			<div class="controls"> 
-				<select data-bind="options: availableCategories, optionsText: 'name', optionsCaption:'Please select Category', value: selectedCategory" ></select>
-			</div>
-	  </div>
-	  <div class="control-group">
-			<div class="controls"> 
-				<button class="btn" data-bind="click: submitData">Submit</button>
-			</div>
-	  </div>
-	</form>
-</div>
+		</div>
+	</div>
 </div>
 <script>
 (function(httpCompliance, $, undefined){

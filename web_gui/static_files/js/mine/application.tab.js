@@ -39,7 +39,14 @@ app.Tab = {
 					tabs.append(new_tab_div);
 					new_tab_id = "#newtab-" + tabCounter
 					// Append the Ajax response as html data for the newly created Tab 
-					$( new_tab_id ).html(data.form);
+					var page_html = '<div class="row-fluid"> \
+										<div data-bind="template: {name: \'menu_list\'}"> \
+										</div> \
+										<div class="span9 offset2" style="overflow: auto"> ' +  data.form + '\
+										</div> \
+									</div>'
+
+					$( new_tab_id ).html(page_html);
 					
 					// Call the Knock out bindings for the newly created page
 					if (htmlTextOnly === undefined || htmlTextOnly === false){
