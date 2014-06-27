@@ -12,30 +12,71 @@ from db_tables.http_request import HttpRequestCategory
 from db_tables.http_tests import HttpTest, HttpTestResults
 from models.new_test_insert import load_tests
 from sqlalchemy.sql.expression import and_, or_
+from flask.json import JSONEncoder
 
 app = Flask(__name__)
 
 
 class MyTemplateLoader(BaseLoader):
+    """
+        Description : Customized class to the templates through jinja
+       
+    """
 
     def __init__(self, template_folder):
+        """
+            Description : Init function to initialize the template loader class
+
+        """
         self.template_folder = template_folder
 
     def get_source(self, environment, template_name):
+        """
+            Description : Returns the template details to the jinja environment
+            
+            input_param : environment - details of the jinja enviroment
+            input_type : dict
+            
+            input_param : template_name - Name of the template to be rendered
+            input_type : string
+            
+            out_param : source - template source
+            out_type : string
+            
+            out_param : path - path of the template folder
+            out_type : string
+            
+            out_param : lambda - function to check whether the template 
+                            should be read again not. False-changed, 
+                            True-not changed
+            out_type : function object
+        
+        """
         path = os.path.join(self.template_folder, template_name)
         if not os.path.exists(path):
             raise TemplateNotFound(template)
         fd = open(path, "r")
         source = "\r\n".join( fd.readlines() )
         return source, path, lambda : False
-    
+
 def format_test_data(test):
+    """
+        Description : Formats test data in the required format before
+                      sending to the UI
+        
+        input_param : test - instance of HttpTest class
+        input_type : HttpTest
+        
+        out_param : test_info - formatted test data 
+        out_type : dict
+        
+    """
 	test_info = {'id': test.id, 
-			'name': test.name,
-			'description': test.description,
+			'name': test.name.decode('latin1'),
+			'description': test.description.decode('latin1'),
 			'created_time': test.created_time.isoformat(' '),
 			'completed_time': test.completed_time.isoformat(' ')if test.completed_time else '',
-			'scheduled_by' : test.scheduled_by,
+			'scheduled_by' : test.scheduled_by.decode('latin1'),
 			'category': test.test_category.category_name,
 			'status' : "",
 			'total_test_count' : len(test.total_tests),
@@ -65,6 +106,17 @@ def format_test_data(test):
 	return test_info
 
 def format_test_case_data(data):
+    """
+        Description : Formats test case results data in the required 
+                      format before sending to the UI
+        
+        input_param : data - instance of HttpTest class
+        input_type : HttpTestResults
+        
+        out_param : test_case_info - formatted test data 
+        out_type : dict
+        
+    """
 	test_case_info = {
 		'id': data.id,
 		'test_id': data.test_id,
@@ -84,6 +136,17 @@ def format_test_case_data(data):
 	return test_case_info
 
 def get_search_data():
+    """
+        Description : Constructs the SQL search query based on the
+                      given form data
+        
+        input_param :
+        input_type :
+        
+        out_param : tests - mached HttpTest rows
+        out_type : HttpTest
+       
+    """
 	tests = []
 	form_data = request.json if request.json else request.form
 	query = session.query(HttpTest)
@@ -100,10 +163,18 @@ def get_search_data():
 
 @app.route('/')
 def load_index():
+    """
+        Description : View function for the root URL
+        
+    """
     return render_template("index.html")                        
 
 @app.route('/schedule_new_test', methods=['GET', 'POST'])
 def schedule_new_test():
+    """
+        Description : View function for the scheduling new tests
+        
+    """
 	if request.method == 'GET':
 		data ={'categories': [ {'id': category[0], 'name': category[1] } for category in session.query(HttpRequestCategory.id, HttpRequestCategory.category_name).all()]}
 		response_data = { 'form' : render_template('schedule_new_test.html'),
@@ -129,6 +200,10 @@ def schedule_new_test():
 
 @app.route('/test_details/<int:test_id>', methods=['GET', 'POST'])
 def load_test_details(test_id=0):
+    """
+        Description : View function for loading the specific test details
+        
+    """
 	test = session.query(HttpTest).get(test_id)
 	if request.method == 'GET':
 		response_data = {  'form' : render_template('test_details.html'),
@@ -149,6 +224,10 @@ def load_test_details(test_id=0):
 
 @app.route('/testcase_details/<int:test_id>', methods=['GET'])
 def load_testcase_details(test_id=0):
+    """
+        Description : View function for loading the specific test case details
+        
+    """
 	test_result_type = request.args.get('test_result_type', True)
 	query = session.query(HttpTestResults)
 	if test_result_type:
@@ -167,6 +246,10 @@ def load_testcase_details(test_id=0):
 
 @app.route('/report/test_status', methods=['GET'])
 def report_test_statust():
+    """
+        Description : View function to load all the test results 
+        
+    """
 	tests = [ format_test_data(test)	for test in session.query(HttpTest).all() ]
 	response_data = { 'form' : render_template('all_test_status.html'),
 	                      'response_data' : {'tests': tests}
@@ -176,6 +259,10 @@ def report_test_statust():
 
 @app.route('/search_test', methods=['GET', 'POST'])
 def search_test():
+    """
+        Description : View function to handle search URL
+        
+    """
 	if request.method == 'GET':
 		data ={'categories': [ {'id': category[0], 'name': category[1] } for category in session.query(HttpRequestCategory.id, HttpRequestCategory.category_name).all()]}
 		response_data = { 'form' : render_template('search_test.html'),
@@ -192,6 +279,10 @@ def search_test():
 		
 @app.route('/down_load_excel', methods=['POST'])
 def load_excel():
+    """
+        Description : View function to handle the Excel export data
+        
+    """
 	result = get_search_data()
 	excel_data = "<div>"
 	if result:
@@ -215,6 +306,10 @@ def load_excel():
 
 @app.route('/help', methods=['GET', 'POST'])
 def help():
+    """
+        Description : View function to handle help Page
+        
+    """
 	response_data = { 'form' : render_template('help.html'),
                           'response_data' : {}
 	                        }
@@ -230,9 +325,4 @@ app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
 app.jinja_loader = ChoiceLoader([MyTemplateLoader("templates")])
 
 if __name__ == '__main__':
-    '''request = {'lob_name':'1', 'checklist':{'value':{'id':1,'name':'1'}, 'value':{'id':2, 'name':'2'}}}
-    form_data = MultiDict(request)
-    print form_data
-    print form_data.get('checklist')
-    print type(form_data.get('checklist'))'''
     app.run(debug=True, use_reloader=False)

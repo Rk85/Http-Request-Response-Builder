@@ -19,15 +19,7 @@ create_query = dialect + driver + "://" + username + ":" + password + "@" + host
 
 engine = create_engine(create_query)
 
-
-#engine = create_engine('mysql+pymysql://root:hashini@127.0.0.1/test')
 Session = sessionmaker(bind=engine)
 session = Session()
 db_connection = engine.connect()
 
-
-# For the Table Creation
-#import http_request
-#import http_response
-#import http_tests
-#import http_verification
