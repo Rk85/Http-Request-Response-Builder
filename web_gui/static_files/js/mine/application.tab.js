@@ -52,6 +52,9 @@ app.Tab = {
 					if (htmlTextOnly === undefined || htmlTextOnly === false){
 						applyFormBindings(data.response_data, new_tab_id);
 					}
+					if ( htmlTextOnly === true ){
+						ko.applyBindings({}, $(new_tab_id)[0]);
+					}
 
 					// Make the last loaded tab as the active one
 					$(tabs).tabs("option","active", -1 );

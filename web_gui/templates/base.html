@@ -41,6 +41,7 @@
 		Application.Tab.setup();
 		$('#loader').hide();	
 		$('#application_tabs').removeClass('ui-widget-content');
+		$("#newtab-0 .row-fluid .span8").prepend($("#menu_list").html());
 });
 
 </script>
@@ -59,7 +60,11 @@
 	</div>
 	</div>
 	<div id="footer">
-		<p class="muted credit">Testing</p>
+        <p class="pull-left">
+                <strong>Developer Name : Radhakrishnan Raji ( RK )</strong><br>
+                <strong>Developer Git Profile : Rk85</strong><br>
+                <strong> Contact : </strong><a href="mailto:#">rachandkrishnan@gmail.com</a>
+        </p>
 	</div>
 </body>
 <script type="text/html" id="menu_list">
@@ -67,16 +72,17 @@
 		<div class="span2 pull-left-corner side-bar-section">
 	        <ul class="nav nav-pills pull-left nav-stacked">
 	            <li class="dropdown-submenu menu-list" >
-	                <a>Test</a>
+	                <a align-text="center">Test Details</a>
 	                <ul class="dropdown-menu" >
-	                    <li ><a href="#/schedule_new_test"> Schedule New Test</a></li>
-	                    <li><a href="#/search_test">Search Test</a></li>
+	                    <li ><a href="#/test/new"> Schedule New Test</a></li>
+	                    <li><a href="#/test/search">Search Test</a></li>
+	                    <li><a href="#/test/details">All Tests</a></li>
 	                </ul>
 	            </li>
 	            <li class="dropdown-submenu menu-list" >
-	                <a>Status Report</a>
+	                <a>Request Details</a>
 	                <ul class="dropdown-menu" >
-	                    <li><a href="#/report/test_status">Test Status</a></li>
+	                    <li><a href="#/request/details">All Requests</a></li>
 	                </ul>
 	            </li>
 	            <li class="pull-left menu-list" ><a href="#/help">Help</a></li>

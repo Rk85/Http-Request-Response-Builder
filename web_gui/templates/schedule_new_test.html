@@ -61,7 +61,7 @@
 					category_id : self.selectedCategory().id
 				}
 			$.ajax({ type: "POST",
-						url: "/schedule_new_test",
+						url: "/test/new",
 						data: ko.toJSON(postData),
 						contentType: "application/json; charset=utf-8",
 						dataType: "json",

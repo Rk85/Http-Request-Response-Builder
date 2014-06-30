@@ -1,70 +1,75 @@
-<div>
-<div>
-	<h3 class="text-center"> Test Details </h3>
-</div>
-<div class="controls" data-bind="ifnot: testDetails"> 
-	<h5> Test Not Found </h5>
-</div>
-<div class="row-fluid">
-	<div class="span6" data-bind="if: testDetails" > <div data-bind="attr: { id: chartId}"></div></div>
-	<div class="span6">
-		<div data-bind="if: testDetails" >
-			<table width=100% id="single_test_table" class="display table table-striped table-bordered table-hover table-condensed">
-				<tbody data-bind="with: testDetails">
-					<tr><td>Test Name</td>
-						<td data-bind="text:name"></td>
-					<tr>
-					<tr><td>Description</td>
-						<td data-bind="text:description"></td>
-					<tr>
-					<tr><td>Category</td>
-						<td data-bind="text:category"></td>
-					<tr>
-					<tr><td>Scheduled By</td>
-						<td data-bind="text:scheduled_by"></td>
-					<tr>
-					<tr><td>Test Status</td>
-						<td><span data-bind="text: status"></span>
-						</td>
-					<tr>
-					<tr><td>Total Tests</td>
-						<td data-bind="text:total_test_count"></td>
-					<tr>
-					<tr><td>No of Test Passed</td>
-						<td><span data-bind="text:pass_count"></span>
-							<a class="btn btn-info" data-bind="visible: pass_count, click: function(data, event) { $parent.getTestCasedetails(true) }"> Pass Details </a>
-						</td>
-					<tr>
-					<tr><td>No of Test Failed</td>
-						<td><span data-bind="text:fail_count"></span>
-							<a class="btn btn-info" data-bind="visible: fail_count, click: function(data, event) { $parent.getTestCasedetails(false) }"> Fail Details </a>
-						</td>
-					<tr>
-					<tr><td>Scheduled Time</td>
-						<td data-bind="text:created_time"></td>
-					<tr>
-					<tr><td>Completed Time</td>
-						<td data-bind="text:completed_time"></td>
-					<tr>
-				</tbody>
-		    </table>
+<div class="container-fluid">
+	<div>
+		<h3 class="text-center"> Test Details </h3>
+	</div>
+	<div class="controls" data-bind="ifnot: testDetails"> 
+		<h5> Test Not Found </h5>
+	</div>
+	<div class="row-fluid over-flow">
+		<div class="span6" data-bind="if: testDetails" > <div data-bind="attr: { id: chartId}"></div></div>
+		<div class="span6">
+			<div data-bind="if: testDetails" >
+				<table width=100% id="single_test_table" class="display table table-striped table-bordered table-hover table-condensed">
+					<tbody data-bind="with: testDetails">
+						<tr><td>Test Name</td>
+							<td data-bind="text:name"></td>	
+						<tr>
+						<tr><td>Description</td>
+							<td data-bind="text:description"></td>
+						<tr>
+						<tr><td>Category</td>
+							<td data-bind="text:category"></td>
+						<tr>
+						<tr><td>Scheduled By</td>
+							<td data-bind="text:scheduled_by"></td>
+						<tr>
+						<tr><td>Test Status</td>
+							<td><span data-bind="text: status"></span>
+							</td>
+						<tr>
+						<tr><td>Total Tests</td>
+							<td data-bind="text:total_test_count"></td>
+						<tr>
+						<tr><td>No of Test Passed</td>
+							<td><span data-bind="text:pass_count"></span>
+								<a class="btn btn-info" data-bind="visible: pass_count, click: function(data, event) { $parent.getTestCasedetails(true) }"> Pass Details </a>
+							</td>
+						<tr>
+						<tr><td>No of Test Failed</td>
+							<td><span data-bind="text:fail_count"></span>
+								<a class="btn btn-info" data-bind="visible: fail_count, click: function(data, event) { $parent.getTestCasedetails(false) }"> Fail Details </a>
+							</td>
+						<tr>
+						<tr><td>Scheduled Time</td>
+							<td data-bind="text:created_time"></td>
+						<tr>
+						<tr><td>Completed Time</td>
+							<td data-bind="text:completed_time"></td>
+						<tr>
+					</tbody>
+			    </table>
+			</div>
 		</div>
 		<div data-bind="if: testDetails">
 			<a class="btn btn-success" data-bind="visible: testDetails().status=='Paused', click: function(data, event) { modifyTestStatus(false) }"> Restart Test </a>
 			<a class="btn btn-success" data-bind="visible: testDetails().status=='Running', click:  function(data, event) { modifyTestStatus(true) }"> Pause Test </a>
 		</div>
 	</div>
-</div>
-<div data-bind="if: testCaseDetails().length !=0">
-	 <h5 class="pull-left" data-bind="text: testCaseHeader"> </h5>
-	<table data-bind='attr: {id: "test_case_results_"+testDetails().id}' class="pull-left display table table-striped table-bordered table-hover table-condensed">
-		<thead>
-			<th>ID</th>
-			<th>Client Failure</th>
-			<th>Server Failure</th>
-		</thead>
-	</table>
-</div>
+	<div class="row-fluid">
+		<div data-bind="if: testCaseDetails().length !=0">
+			<h5 class="pull-left" data-bind="text: testCaseHeader"> </h5>
+        	<br>
+			<div class="over-flow row-fluid">
+				<table data-bind='attr: {id: "test_case_results_"+testDetails().id}' class="pull-left pretty display table table-striped table-bordered table-hover table-condensed">
+					<thead>
+						<th>ID</th>
+						<th>Client Failure</th>
+						<th>Server Failure</th>
+					</thead>
+				</table>
+			</div>
+		</div>
+	</div>
 </div>
 <script>
 (function(httpCompliance, $, undefined){
@@ -118,7 +123,7 @@
 			self.testCaseHeader(data ? "Passed Test Case Details" : "Failed Test Case Details");
 			var postData = { test_result_type: data}
 			$.ajax({ type: "GET",
-                        url: "/testcase_details/"+self.testDetails().id,
+                        url: "/test/details/case/"+self.testDetails().id,
                         data: postData,
                         contentType: "application/json; charset=utf-8",
                         dataType: "json",

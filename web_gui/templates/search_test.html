@@ -1,60 +1,58 @@
 <div class="container-fluid">
 	<div class="row-fluid">
 		<div>
-			<div>
-				<h3 class="text-center"> Search Scheduled Test </h3>
-			</div>
-			<div data-bind="visible: searchVisible">
-				<form method="post" action="/down_load_excel" id="search_form" class="form-horizontal">
-					<div class="control-group">
-						<label class="control-label">Test Name</label>
-					    <div class="controls">
-						    <input type="text" data-bind="value: testName" placeholder="Test Name">
-						</div>
-				  	</div>
-				 	<div class="control-group">
-				    	<label class="control-label">User Name</label>
-						<div class="controls"> 
-							<input type="text" data-bind="value: userName" placeholder="Your Name">
-						</div>
+			<h3 class="text-center"> Search Scheduled Test </h3>
+		</div>
+		<div data-bind="visible: searchVisible">
+			<form method="post" action="/test/details/down-load" id="search_form" class="form-horizontal">
+				<div class="control-group">
+					<label class="control-label">Test Name</label>
+				    <div class="controls">
+					    <input type="text" data-bind="value: testName" placeholder="Test Name">
 					</div>
-					<div class="control-group">
-				    	<label class="control-label">Test Category to run </label>
-						<div class="controls"> 
-							<select data-bind="options: availableCategories, optionsText: 'name', selectedOptions: selectedCategories" size="5" multiple="true"></select>
-						</div>
+			  	</div>
+			 	<div class="control-group">
+			    	<label class="control-label">User Name</label>
+					<div class="controls"> 
+						<input type="text" data-bind="value: userName" placeholder="Your Name">
 					</div>
-				</form>
-			</div>
-			<div data-bind="ifnot: searchVisible" >
-				<div>
-					<table width=100% id="search_test_table" class="display table table-striped table-bordered table-hover table-condensed">
-				        <thead class="dataTableHeader">
-				            <tr>
-				                <th>Test Id</th>
-				                <th>Test Name</th>
-				                <th>Category</th>
-				                <th>Scheduled By</th>
-				                <th>Test Status</th>
-				                <th>Total Tests</th>
-				                <th>No of Test Passed</th>
-				                <th>No of Test Failed</th>
-				                <th>Scheduled Time</th>
-				                <th>Completed Time</th>
-			    	        </tr>
-			        	</thead>
-				    </table>
 				</div>
-			</div>
-			<div class="form-horizontal control-group">
-				<br>
-				<div class="controls"> 
-					<button class="btn" data-bind="click: searchTest, visible: searchVisible">Search</button>
-					<h5 data-bind="visible: ( !searchVisible() && searchResults().length == 0)"> No Test Found </h5>
-					<button class="btn" data-bind="click: resetSearchOption, visible: !searchVisible()">Reset Search</button>
-					<button class="btn" data-bind="click: exportData, visible: ( !searchVisible() && searchResults().length != 0)">Export</button>
+				<div class="control-group">
+			    	<label class="control-label">Test Category to run </label>
+					<div class="controls"> 
+						<select data-bind="options: availableCategories, optionsText: 'name', selectedOptions: selectedCategories" size="5" multiple="true"></select>
+					</div>
 				</div>
-			 </div>
+			</form>
+		</div>
+		<div data-bind="ifnot: searchVisible" class="over-flow">
+			<table width=100% id="search_test_table" class="display pretty table table-striped table-bordered table-hover table-condensed">
+		        <thead class="dataTableHeader">
+		            <tr>
+		                <th>Test Id</th>
+		                <th>Test Name</th>
+		                <th>Category</th>
+		                <th>Scheduled By</th>
+		                <th>Test Status</th>
+		                <th>Total Tests</th>
+		                <th>No of Test Passed</th>
+		                <th>No of Test Failed</th>
+		                <th>Scheduled Time</th>
+		                <th>Completed Time</th>
+		   	        </tr>
+		       	</thead>
+		    </table>
+		</div>
+	</div>
+	<div class="row-fluid">
+		<div class="form-horizontal control-group">
+			<br>
+			<div class="controls"> 
+				<button class="btn" data-bind="click: searchTest, visible: searchVisible">Search</button>
+				<h5 data-bind="visible: ( !searchVisible() && searchResults().length == 0)"> No Test Found </h5>
+				<button class="btn" data-bind="click: resetSearchOption, visible: !searchVisible()">Reset Search</button>
+				<button class="btn" data-bind="click: exportData, visible: ( !searchVisible() && searchResults().length != 0)">Export</button>
+			</div>
 		</div>
 	</div>
 </div>
@@ -106,7 +104,7 @@
 	
 	self.formatTableData = function formatTableData(test){
 		 return	[
-				['<a href= "#/test_details/' + test.id +'"> <span>' + test.id + '</span></a>',
+				['<a href= "#/test/details/' + test.id +'"> <span>' + test.id + '</span></a>',
 		       	test.name,
         		test.category,
 	          	test.scheduled_by,
@@ -128,7 +126,7 @@
 				})
 		}
 		$.ajax({ type: "POST",
-					url: "/search_test",
+					url: "/test/search",
 					data: ko.toJSON(postData),
 					contentType: "application/json; charset=utf-8",
 					dataType: "json",

@@ -4,8 +4,8 @@
 			<div>
 				<h3 class="text-center"> All Test Status </h3>
 			</div>
-			<div style="overflow: scroll">
-				<table width=100% id="all_test_table" class="display table table-striped table-bordered table-hover table-condensed">
+			<div class="over-flow">
+				<table width=100% id="all_test_table" class="display pretty table table-striped table-bordered table-hover table-condensed">
 					<thead class="dataTableHeader">
 						<tr>
 							<th>Test Id</th>
@@ -22,7 +22,7 @@
 					</thead>
 				</table>
 			</div>
-		</div
+		</div>
 	</div>
 </div>
 <script>
@@ -33,7 +33,7 @@
 		
 		self.formatTableData = function formatTableData(test){
          	return [
-                ['<a href= "#/test_details/' + test.id +'"> <span>' + test.id + '</span></a>',
+                ['<a href= "#/test/details/' + test.id +'"> <span>' + test.id + '</span></a>',
                 test.name,
                 test.category,
                 test.scheduled_by,
@@ -71,17 +71,6 @@
 			Application.dataTable.Init("#all_test_table", options, true);
     	}
 		
-		self.test_total_status = ko.computed(function(){
-			if (self.status === "Pending"){
-				return "warning";
-			}
-			if (self.fail_count ) {
-				return "error";
-			}
-			if ( self.total_test_count === self.pass_count ){
-				return "success";
-			}
-		})
 		self.initDataTable()
 	}
 }(Application.namespace("Application.httpCompliance"), jQuery))

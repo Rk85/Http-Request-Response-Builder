@@ -6,25 +6,40 @@ Application.Routing = {
 					context.log("MAIN");
 					
 				});
-				this.get("#/test_details/:ID", function(context){
-					var url = "/test_details/" + this.params['ID'];
+				this.get("#/test/new", function(context){
+					context.log("#/test/new");
+					var url = "/test/new"
+					Application.Tab.addTab("Scheduling New Test" , url );
+				});
+				this.get("#/test/search", function(context){
+					context.log("#/test/search");
+					var url = "/test/search"
+					Application.Tab.addTab("Test Search" , url );
+				});
+				this.get("#/test/details/:ID", function(context){
+					var url = "/test/details/" + this.params['ID'];
 					Application.Tab.addTab("TEST ID : " + this.params['ID'] , url );
 					context.log("NEW");
 				});
-				this.get("#/schedule_new_test", function(context){
-					context.log("#/schedule_new_test");
-					var url = "/schedule_new_test"
-					Application.Tab.addTab("Scheduling New Test" , url );
+				this.get("#/test/details", function(context){
+					context.log("#/test/details");
+					var url = "/test/details"
+					Application.Tab.addTab("Detail - All Tests" , url );
 				});
-				this.get("#/search_test", function(context){
-					context.log("#/search_test");
-					var url = "/search_test"
-					Application.Tab.addTab("Test Search" , url );
+				this.get("#/request/new", function(context){
+					context.log("#/request/new");
+					var url = "/request/new"
+					Application.Tab.addTab("New Request/Response Config" , url );
 				});
-				this.get("#/report/test_status", function(context){
-					context.log("#/report/all_test");
-					var url = "/report/test_status"
-					Application.Tab.addTab("Report - All Tests" , url );
+				this.get("#/request/details/:ID", function(context){
+					var url = "/request/details/" + this.params['ID'];
+					Application.Tab.addTab("Request ID : " + this.params['ID'] , url );
+					context.log("NEW");
+				});
+				this.get("#/request/details", function(context){
+					context.log("#/request/details");
+					var url = "/request/details"
+					Application.Tab.addTab("Detail - All Request" , url );
 				});
 				this.get("#/help", function(context){
 					context.log("#/help");

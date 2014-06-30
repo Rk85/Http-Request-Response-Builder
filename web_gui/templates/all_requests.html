@@ -1,0 +1,65 @@
+<div> <div class="row-fluid">
+	<div class="row-fluid"> <div>
+				<h3 class="text-center"> All Request Details </h3>
+			</div>
+			<div class="over-flow">
+				<table width=100% id="all_request_table" class="display pretty table table-striped table-bordered table-hover table-condensed">
+					<thead class="dataTableHeader">
+						<tr>
+							<th>Request Id</th>
+							<th>Description</th>     
+							<th>Category Name</th>     
+							<th>Is PipeLine</th>     
+							<th>Total Requests</th>
+						</tr>
+					</thead>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+(function(httpCompliance, $, undefined){
+
+	httpCompliance.AllRequestViewModel = function AllRequestViewModel(data){
+		var self = this;
+		
+		self.formatTableData = function formatTableData(request){
+         	return [
+                ['<a href= "#/request/details/' + request.id +'"> <span>' + request.id + '</span></a>',
+                request.description,
+                request.category_name,
+                request.is_pipe_line ? "Yes" : "No",
+                request.total_requests,
+                ]
+            ]
+    	} 
+		
+		self.requests = ko.observableArray( $.map(data.requests || [], function(request){
+			return self.formatTableData(request);
+		} ));
+		
+		self.initDataTable = function initDataTable(){
+			var options = {
+				"bJQueryUI": true,
+				aoColumns: [ {
+								"sType": "numeric"
+						},
+						null,
+						null,
+						null,
+						null
+					],
+				aaData: self.requests()
+			}
+			Application.dataTable.Init("#all_request_table", options, true);
+    	}
+		self.initDataTable()
+	}
+}(Application.namespace("Application.httpCompliance"), jQuery))
+
+var applyFormBindings = function(data, tab_id){
+	ko.applyBindings(new Application.httpCompliance.AllRequestViewModel(data), $(tab_id)[0]);
+};
+
+</script>
