@@ -1,7 +1,5 @@
-http_compliance_testing_tool
-============================
+http Request/Response Builder and Tester
+========================================
 
-Tests the HTTP Server/Proxy for the RFC compliant 
+Builds the Http Request/Response and verifies the same
 
-Note:
-	First commit from ubuntu

@@ -1,4 +1,4 @@
-<div>
+<div class="form">
 	<div class="row-fluid">
 		<div>
 			<div>
@@ -26,9 +26,9 @@
 	</div>
 </div>
 <script>
-(function(httpCompliance, $, undefined){
+(function(httpRequestResponseBuilder, $, undefined){
 
-	httpCompliance.AllTestViewModel = function AllTestViewModel(data){
+	httpRequestResponseBuilder.AllTestViewModel = function AllTestViewModel(data){
 		var self = this;
 		
 		self.formatTableData = function formatTableData(test){
@@ -73,10 +73,10 @@
 		
 		self.initDataTable()
 	}
-}(Application.namespace("Application.httpCompliance"), jQuery))
+}(Application.namespace("Application.httpRequestResponseBuilder"), jQuery))
 
 var applyFormBindings = function(data, tab_id){
-	ko.applyBindings(new Application.httpCompliance.AllTestViewModel(data), $(tab_id)[0]);
+	ko.applyBindings(new Application.httpRequestResponseBuilder.AllTestViewModel(data), $(tab_id)[0]);
 };
 
 </script>

@@ -52,12 +52,12 @@
 
 <body>
 	<div class="content">
-	<div id="loader">
-		<img id="loading-image" src="../static_files/images/ajax-loader.gif" > </img>
-	</div>
-	<div id="main">
-		{% block content %}{% endblock %}
-	</div>
+		<div id="loader">
+			<img id="loading-image" src="../static_files/images/ajax-loader.gif" > </img>
+		</div>
+		<div id="main">
+			{% block content %}{% endblock %}
+		</div>
 	</div>
 	<div id="footer">
         <p class="pull-left">
@@ -69,7 +69,7 @@
 </body>
 <script type="text/html" id="menu_list">
     <div class="row-fluid">
-		<div class="span2 pull-left-corner side-bar-section">
+		<div class="pull-left-corner side-bar-section">
 	        <ul class="nav nav-pills pull-left nav-stacked">
 	            <li class="dropdown-submenu menu-list" >
 	                <a align-text="center">Test Details</a>

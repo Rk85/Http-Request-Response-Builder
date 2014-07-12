@@ -42,7 +42,7 @@ app.Tab = {
 					var page_html = '<div class="row-fluid"> \
 										<div data-bind="template: {name: \'menu_list\'}"> \
 										</div> \
-										<div class="span9 offset2" style="overflow: auto"> ' +  data.form + '\
+										<div class="content-section over-flow"> ' +  data.form + '\
 										</div> \
 									</div>'
 

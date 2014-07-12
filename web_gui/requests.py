@@ -4,11 +4,12 @@ import json
 import logging
 from models.new_test_insert import load_tests
 from db_tables.http_tests import HttpTest, HttpTestResults
-from db_tables.http_request import HttpRequestCategory, HttpRequest
+from db_tables.http_request import HttpRequestCategory, HttpRequest, HttpSubRequest
+from db_tables.http_response import HttpResponse, HttpSubResponse
+from db_tables.http_verification import HttpResponseVerification
 from db_tables.db_base import session
-from shared import format_test_data, format_test_case_data
 from sqlalchemy.sql.expression import and_, or_
-from shared import logger, format_request_data
+from shared import logger, format_main_details_data, format_sub_request_data, format_sub_response_data
 
 request_routes = Module(__name__, url_prefix="/request", name="request_routes")
 
@@ -42,42 +43,40 @@ def new_request():
         return resp
 
 @request_routes.route('/details', methods=['GET'])
-def load_all_requests():
+@request_routes.route('/details/<int:request_id>', methods=['GET'])
+def load_all_requests(request_id=None):
     """
         Description : View function to render all the Request details
         
     """
-    requests = [ format_request_data(request_details)    for request_details in session.query(HttpRequest).all() ]
-    response_data = { 'form' : render_template('all_requests.html'),
+    if not request_id:
+        requests = [ format_main_details_data(request_details) for request_details in session.query(HttpRequest).all() ]
+        response_data = { 'form' : render_template('all_requests.html'),
                           'response_data' : {'requests': requests}
                           }
-    resp = make_response(jsonify(response_data), 200)
-    return resp
-
-
-@request_routes.route('/details/<int:test_id>', methods=['GET', 'POST'])
-def load_request_details(test_id=0):
-    """
-        Description : View function for loading the specific Request details
-        
-    """
-    test = session.query(HttpTest).get(test_id)
-    if request.method == 'GET':
-        response_data = {  'form' : render_template('test_details.html'),
-                              'response_data' : {'test_details': {}}
-                        }
-        if test:
-            response_data['response_data']['test_details'] = format_test_data(test)
         resp = make_response(jsonify(response_data), 200)
         return resp
     else:
-        form_data = request.json if request.json else request.form
-        test.paused = form_data.get('pause')
-        test.running = not form_data.get('pause')
-        session.commit()
-        response_data = { 'post_response': { 'test_details' : format_test_data(test) }}
-        resp = make_response(jsonify(response_data), 200)
-        return resp
+        show_request = session.query(HttpRequest).get(request_id)
+        sub_request_query = session.query(HttpSubRequest).filter(HttpSubRequest.request_id==request_id)
+        sub_response_query = session.query(HttpSubResponse).filter(HttpSubResponse.request_id==request_id)
+        
+        if request.method == 'GET':
+            response_data = {  'form' : render_template('request_details.html'),
+                              'response_data' : {'request_details': {}}
+                        }
+            if show_request:
+                response_data = {  'form' : render_template('request_details.html'),
+                                      'response_data' : {
+                                            'main_details': format_main_details_data(show_request),
+                                            'sub_request_details': [ format_sub_request_data(sub_request)
+                                                for sub_request in sub_request_query ],
+                                            'sub_response_details' : [ format_sub_response_data(sub_response)
+                                                for sub_response in sub_response_query ]
+                                       }
+                               }
+            resp = make_response(jsonify(response_data), 200)
+            return resp
 
 @request_routes.route('/details/down-load', methods=['POST'])
 def load_excel():

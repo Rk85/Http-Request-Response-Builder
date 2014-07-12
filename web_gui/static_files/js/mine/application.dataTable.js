@@ -20,5 +20,31 @@
 		}
 	    $(".fg-toolbar").remove();
 	
+	};
+	
+	dataTable.filterEvent = function filterEvent(table_id, value, options){
+        if (value == '') {
+                 $(table_id + " tbody > tr").show();
+        }
+        else {
+				var maxRows = options.maxRows || 0
+        	    $(table_id + " > tbody > tr").hide();
+	            var filters = value.split(',');
+                $.map(filters, function(filter){
+					if (filter != "") {
+            			var searchRow = $(table_id + " td.search-col:contains-ci('" + filter + "')").parent("tr");
+			            for( var i=1; i<= maxRows; i++){
+                			searchRow.show();
+			                searchRow = searchRow.next();
+            			}
+			        }
+				});
+             }
 	}
+	$.extend($.expr[":"], {
+        "contains-ci": function (elem, i, match, array) {
+            var elementValue = elem.textContent || elem.innerText || $(elem).text() || "";
+            return elementValue.toLowerCase().indexOf((match[3] || "").toLowerCase()) >= 0;
+         }
+    });
 }(Application.namespace("Application.dataTable"), jQuery));

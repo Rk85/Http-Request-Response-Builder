@@ -41,10 +41,10 @@
 	</div>
 </div>
 <script>
-(function(httpCompliance, $, undefined){
+(function(httpRequestResponseBuilder, $, undefined){
   
 
-  httpCompliance.scheduleNewTestViewModel = function scheduleNewTestViewModel(data){
+  httpRequestResponseBuilder.scheduleNewTestViewModel = function scheduleNewTestViewModel(data){
     var self = this;
 	self.testName = ko.observable();
 	self.testDescription = ko.observable();
@@ -76,10 +76,10 @@
 		$.prompt("Please fill all the required Fields");
     };
 	}
-}(Application.namespace("Application.httpCompliance"), jQuery))
+}(Application.namespace("Application.httpRequestResponseBuilder"), jQuery))
 
 var applyFormBindings = function(data, tab_id){
-	ko.applyBindings(new Application.httpCompliance.scheduleNewTestViewModel(data), $(tab_id)[0]);
+	ko.applyBindings(new Application.httpRequestResponseBuilder.scheduleNewTestViewModel(data), $(tab_id)[0]);
 };
 
 </script>

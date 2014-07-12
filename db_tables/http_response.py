@@ -19,7 +19,7 @@ class HttpResponseCodes(Base):
     __table_args__ = {'useexisting' : True}
     
     id = Column("Id", Integer, primary_key=True)
-    code_name = Column("CodeName", String(10), nullable=False)
+    code_name = Column("CodeName", String(100), nullable=False)
     is_active = Column("isActive", Boolean)
 
 class HttpResponseHeaders(Base):

@@ -65,19 +65,6 @@ def load_index():
     """
     return render_template("index.html")                        
 
-@app.route('/report/all_requests', methods=['GET'])
-def report_all_requests():
-    """
-        Description : View function to render the configured request/response 
-        
-    """
-    tests = [ format_test_data(test)    for test in session.query(HttpTest).all() ]
-    response_data = { 'form' : render_template('all_requests.html'),
-                          'response_data' : {'tests': tests}
-                          }
-    resp = make_response(jsonify(response_data), 200)
-    return resp
-
 @app.route('/help', methods=['GET', 'POST'])
 def help():
     """

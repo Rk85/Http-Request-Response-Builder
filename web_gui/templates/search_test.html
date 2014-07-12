@@ -57,10 +57,10 @@
 	</div>
 </div>
 <script>
-(function(httpCompliance, $, undefined){
+(function(httpRequestResponseBuilder, $, undefined){
   
 
-  httpCompliance.searchTestViewModel = function searchTestViewModel(data){
+  httpRequestResponseBuilder.searchTestViewModel = function searchTestViewModel(data){
     var self = this;
 	self.testName = ko.observable();
 	self.userName = ko.observable();
@@ -141,10 +141,10 @@
 		})
     };
 	}
-}(Application.namespace("Application.httpCompliance"), jQuery))
+}(Application.namespace("Application.httpRequestResponseBuilder"), jQuery))
 
 var applyFormBindings = function(data, tab_id){
-	ko.applyBindings(new Application.httpCompliance.searchTestViewModel(data), $(tab_id)[0]);
+	ko.applyBindings(new Application.httpRequestResponseBuilder.searchTestViewModel(data), $(tab_id)[0]);
 
 };
 

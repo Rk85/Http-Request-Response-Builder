@@ -49,20 +49,29 @@ bottom: 0;
 left:5px;
 top:46px;
 padding-top:20px;
-padding-bottom:100%;
+width: 12%;
+height:100%;
+padding-bottom:30%;
 background-color: #C0C0C0;
 }
+
+.content-section {
+padding-left: 13%;
+width: 87%;
+}
+.content {
+height: 100%;
+}
+
 .side-bar-section ul li{
 margin: 5px;
 border: 1px solid gray;
 background-color: lightblue;
 }
-
 .ui-tabs .ui-tabs-panel /* just in case you want to change the panel */
 {
 padding-top:20px;
 background: white;
-padding-bottom: 100%;
 }
 .form {
 }
@@ -75,20 +84,16 @@ div.dataTables_wrapper {
 }
 
 div.dataTables_length {
-	float: left;
 }
 
 div.dataTables_filter {
-	float: right;
 }
 
 div.dataTables_info {
 	padding: 9px 6px 6px 6px;
-	float: left;
 }
 
 div.dataTables_paginate {
-	float: right;
 }
 
 div.dataTables_length,
@@ -235,4 +240,42 @@ table.pretty thead th.sorting {
 .over-flow {
  overflow: auto;
 }
+
+.inline{
+display: inline;
+}
+
+.new-line{
+margin-top: 9px;
+margin-left: 50px;
+}
+.new-header{
+margin-top: 11px;
+}
+
+.header-line{
+background-color: #FFEBCD;
+width: 100%;
+padding-top:5px;
+padding-bottom:5px;
+text-indent:5px;
+}
+.header-line a {
+color: #000000;
+}
+
+table.new-table thead th {
+    text-align: center;
+    background-color: #48D1CC;
+    background: #48D1CC;
+    color: #000000;
+}
+
+.new-table-header {
+	text-align: center;
+	font-weight:bold;
+}
+.new-table-value {
+	text-align: center;
+	background-color: #d5eaf0;
 }

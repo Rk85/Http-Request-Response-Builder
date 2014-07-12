@@ -4,7 +4,7 @@
 
 from .db_base import Base, engine, session
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, DATETIME, Boolean
+from sqlalchemy import Column, Integer, String, DATETIME, Boolean, Text
 from sqlalchemy.schema import ForeignKey, ForeignKeyConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.expression import func
@@ -46,7 +46,7 @@ class HttpData(Base):
     __table_args__ = {'useexisting': True }
 
     id = Column("Id", Integer, primary_key=True)
-    data = Column("Data", String(1048576), nullable=False)
+    data = Column("Data", Text(1048576), nullable=False)
     cksum = Column("CheckSum", String(1024), nullable=False)
     is_active = Column("isActive", Boolean)
 

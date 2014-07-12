@@ -28,7 +28,7 @@ MAX_CONCURRENT_TESTS = 3
 
 class HTTPClient(threading.Thread):
     """ 
-        Description : HTTP Client Thread for Compliance Testing
+        Description : HTTP Client Thread to send the request 
         
     """
     def __init__(self, test_id):
@@ -53,7 +53,7 @@ class HTTPClient(threading.Thread):
 
 class HTTPServer(threading.Thread):
     """
-        Description : HTTP Server Thread for Compliance Testing
+        Description : HTTP Server Thread to send the response
         
     """
     def __init__(self):

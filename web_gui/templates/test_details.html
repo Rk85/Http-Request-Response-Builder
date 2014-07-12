@@ -72,8 +72,8 @@
 	</div>
 </div>
 <script>
-(function(httpCompliance, $, undefined){
-	httpCompliance.testDetailsViewModel = function testDetailsviewModel(data){
+(function(httpRequestResponseBuilder, $, undefined){
+	httpRequestResponseBuilder.testDetailsViewModel = function testDetailsviewModel(data){
 		var self = this;
 		self.testDetails = ko.observable(data.test_details.id ? data.test_details : null);
 		self.testCaseDetails = ko.observableArray([])
@@ -165,10 +165,10 @@
 			}
 		}
 	}
-}(Application.namespace("Application.httpCompliance"), jQuery))
+}(Application.namespace("Application.httpRequestResponseBuilder"), jQuery))
 
 var applyFormBindings = function(data, tab_id){
-	var model = new Application.httpCompliance.testDetailsViewModel(data)
+	var model = new Application.httpRequestResponseBuilder.testDetailsViewModel(data)
 	ko.applyBindings(model, $(tab_id)[0]);
 	model.initChart();
 };

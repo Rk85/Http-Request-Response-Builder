@@ -1,0 +1,246 @@
+<div>
+	<h4 align="center">Request Details </h4>
+	<div class="row-fluid new-header">
+		<div class="header-line">
+			<a data-toggle="collapse" data-parent="#accordion" href="#main_details">Main Details</a>
+			<span> ( Request Id: <span data-bind="text: id"> </span>, 
+					Category : <span data-bind="text: requestCategory"></span>
+			) </span>
+		</div>
+		<div id="main_details" class="panel-collapse collapse in">
+			<div class="row-fluid new-line">
+				<div class="span5">
+					<h5 class="inline"> Request Description : </h5>
+					<span data-bind="text:requestDescription"></span>
+				</div>
+				<div class="span3">
+					<h5 class="inline"> Pipe Line Request : </h5>
+					<span data-bind="text:requestPipeLine"></span>
+				</div>
+				<div class="span3">
+					<h5 class="inline"> Total Requests : </h5>
+					<span data-bind="text:totalRequests"></span>
+				</div>
+			</div>
+			<div class="row-fluid new-line">
+				<div class="span5">
+					<h5 class="inline"> Response Description : </h5>
+					<span data-bind="text:responseDescription"></span>
+				</div>
+				<div class="span3">
+					<h5 class="inline"> Pipe Line Response : </h5>
+					<span data-bind="text:responsePipeLine"></span>
+				</div>
+				<div class="span3">
+					<h5 class="inline"> Total Responses : </h5>
+					<span data-bind="text:totalResponses"></span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row-fluid new-header">
+		<div class="header-line">
+			<a data-toggle="collapse" data-parent="#accordion" href="#request_details">Request Details</a>
+		</div>
+		<div id="request_details" class="panel-collapse collapse">
+			<div class="row-fluid new-line">
+				<div class="span11 over-flow" data-bind="with: subRequests">
+					<span class=pull-left"> Search </span>
+					<input class=pull-left" data-bind="value: filter, valueUpdate: 'keyup'" placeholder= 'Type Ids: 1,2'></input>
+					<table id="request_table" width=100% class="table new-table table-striped table-bordered table-hover table-condensed">
+                        <thead class="dataTableHeader">
+                            <tr>
+								<th>Id</th>
+								<th>Type</th>
+								<th colspan="6">Details</th>
+							</tr>
+						</thead>
+						<tbody data-bind="foreach: requests">
+							<tr class="new-table-header">
+                                <td class="search-col" rowspan="4" data-bind="text: id">1</td>
+								<td rowspan="2">Request</td>
+                                <td>Method</td>
+                                <td>Request Headers</td>
+                                <td>Version</td>
+                                <td>Data Size</td>
+                                <td>Server Request</td>
+                                <td>Delay Request</td>
+                            </tr>
+							<tr class="info">
+								<td data-bind="text: method"></td>
+                                <td data-bind="text: requestHeaders"></td>
+                                <td data-bind="text: version"></td>
+                                <td data-bind="text: dataSize"></td>
+                                <td data-bind="text: serverRequest"></td>
+                                <td data-bind="text: delayRequest"></td>
+							</tr>
+							<tr class="new-table-header">
+								<td rowspan="2">Verification</td>
+                                <td colspan="1">Response Code</td>
+                                <td colspan="2">Response Headers</td>
+                                <td colspan="1">Version</td>
+                                <td colspan="1">Is Single Value header</td>
+                                <td colspan="1">Data Checksum</td>
+							</tr>
+							<tr class="info">
+                                <td colspan="1" data-bind="text: verifyCode"></td>
+                                <td colspan="2" data-bind="text: verifyRespHdrs"></td>
+                                <td colspan="1" data-bind="text: verifyVersion"></td>
+                                <td colspan="1" data-bind="text: VerifySingHdr"></td>
+                                <td colspan="1" data-bind="text: verifyDataCheck"></td>
+							</tr>
+							<tr class="error">
+								<td colspan="8"></td>
+							</tr>
+                        </tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row-fluid new-header">
+		<div class="header-line">
+			<a data-toggle="collapse" data-parent="#accordion" href="#response_details">Response Details</a>
+		</div>
+		<div id="response_details" class="panel-collapse collapse">
+			<div class="row-fluid new-line">
+				<div class="span11 over-flow" data-bind="with: subResponses">
+					<div data-bind="if: responses().length >0">
+						<span class=pull-left"> Search </span>
+						<input class=pull-left" data-bind="value: filter, valueUpdate: 'keyup'" placeholder= 'Type Ids: 1,2'></input>
+					</div>
+					<div data-bind="if: responses().length == 0">
+						<a class="btn disabled"> No Responses </a>
+					</div>
+					<table data-bind="if: responses().length > 0" id="response_table" width=100% class="table new-table table-striped table-bordered table-hover table-condensed">
+                        <thead class="dataTableHeader">
+                            <tr>
+								<th>Id</th>
+								<th>Type</th>
+								<th colspan="6">Details</th>
+							</tr>
+						</thead>
+						<tbody data-bind="foreach: responses">
+							<tr class="new-table-header">
+                                <td class="search-col" rowspan="4" data-bind="text: id">1</td>
+								<td rowspan="2">Response</td>
+                                <td>Response Code</td>
+                                <td colspan="3">Response Headers</td>
+                                <td>Version</td>
+                                <td>Data Size</td>
+                            </tr>
+							<tr class="info">
+								<td data-bind="text: responseCode"></td>
+                                <td colspan="3" data-bind="text: responseHeaders"></td>
+                                <td data-bind="text: version"></td>
+                                <td data-bind="text: dataSize"></td>
+							</tr>
+							<tr class="new-table-header">
+								<td rowspan="2">Verification</td>
+                                <td colspan="1">Method</td>
+                                <td colspan="2">Request Headers</td>
+                                <td colspan="1">Version</td>
+                                <td colspan="1">Is Single Value header</td>
+                                <td colspan="1">Data Checksum</td>
+							</tr>
+							<tr class="info">
+                                <td colspan="1" data-bind="text: verifyMethod"></td>
+                                <td colspan="2" data-bind="text: verifyReqHdrs"></td>
+                                <td colspan="1" data-bind="text: verifyVersion"></td>
+                                <td colspan="1" data-bind="text: VerifySingHdr"></td>
+                                <td colspan="1" data-bind="text: verifyDataCheck"></td>
+							</tr>
+							<tr class="error">
+								<td colspan="8"></td>
+							</tr>
+                        </tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+(function(httpRequestResponseBuilder, $, undefined){
+	
+	var subResponseDetails = function subResponseDetails(data){
+		var self = this;
+		
+		self.formatData = function formatData(response){
+			return { id              : response.id,
+					 responseCode    : response.response_code || '',
+					 responseHeaders : response.response_headers || [],
+					 version         : response.version || '1.1',
+					 dataSize        : response.data_size ? response.data_size + " Bytes" :  "0 Bytes",
+					 verifyMethod    : response.verify_method || 0,
+					 verifyVersion   : response.verify_version || '1.1',
+					 verifyReqHdrs   : response.verify_req_hdrs || '',
+					 VerifySingHdr   : response.verify_single_header ? "Yes" : "No",
+                     verifyDataCheck : response.verify_data_checksum || ''
+			}
+		};
+		self.responses = ko.observableArray( $.map(data.sub_response_details || [], function(response){
+				return self.formatData(response);
+			})
+		);
+		self.filter = ko.observable();
+		self.filter.subscribe(function(value){
+	 		Application.dataTable.filterEvent("#response_table", value, {maxRows: 5})
+		});
+	};	
+
+	var subRequestDetails = function subRequestDetails(data){
+		var self = this;
+		
+		self.formatData = function formatData(request){
+			return { id             : request.id,
+					 method         : request.method || 'GET',
+					 requestHeaders : request.request_headers || [],
+					 version        : request.version || '1.1',
+					 delayRequest   : request.request_delay ? request.request_delay + " Seconds" : "0 Seconds",
+                  	 serverRequest  : request.server_request ? "Yes" : "No",
+					 dataSize       : request.data_size ? request.data_size + " Bytes" :  "0 Bytes",
+					 verifyCode     : request.verify_code || 0,
+					 verifyVersion  : request.verify_version || '1.1',
+					 verifyRespHdrs : request.verify_resp_hdrs || '',
+					 VerifySingHdr  : request.verify_single_header ? "Yes" : "No",
+                     verifyDataCheck : request.verify_data_checksum || ''
+			}
+		};
+		self.requests = ko.observableArray( $.map(data.sub_request_details || [], function(request){
+				return self.formatData(request);
+			})
+		);
+		self.filter = ko.observable();
+		self.filter.subscribe(function(value){
+	 		Application.dataTable.filterEvent("#request_table", value, {maxRows: 5})
+		});
+	};	
+
+
+	httpRequestResponseBuilder.SingleRequestViewModel = function SingleRequestViewModel(data){
+		var self = this;
+		var mainDetail = data.main_details || {};
+		
+		/* Request Details */
+		self.id = ko.observable( mainDetail.id || 0);
+		self.requestCategory = ko.observable(mainDetail.request_category_name || 'Test');
+		self.requestDescription = ko.observable(mainDetail.request_description || '');
+		self.requestPipeLine = ko.observable(mainDetail.request_pipe_line ? "Yes":'No');
+		self.totalRequests = ko.observable(mainDetail.total_requests || 0 );
+		
+		/* Response Details */
+		self.responseDescription = ko.observable(mainDetail.response_description || '');
+		self.responsePipeLine = ko.observable(mainDetail.response_pipe_line ? "Yes":'No');
+		self.totalResponses = ko.observable(mainDetail.total_responses || 0 );
+		
+		self.subRequests = new subRequestDetails(data || {});
+		self.subResponses = new subResponseDetails(data || {});
+	}
+}(Application.namespace("Application.httpRequestResponseBuilder"), jQuery))
+
+var applyFormBindings = function(data, tab_id){
+	ko.applyBindings(new Application.httpRequestResponseBuilder.SingleRequestViewModel(data), $(tab_id)[0]);
+};
+
+</script>

@@ -29,7 +29,7 @@ logger = logging.getLogger()
 
 class HTTPServerTimer(threading.Thread):
     """
-        Description : HTTP Server Socket Timer Thread for Compliance Testing
+        Description : HTTP Server Socket Timer Thread to handle Http Timeouts
         
     """
     def __init__(self, server_connections_info, epoll, idle_time_out):
