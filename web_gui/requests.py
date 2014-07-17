@@ -4,8 +4,8 @@ import json
 import logging
 from models.new_test_insert import load_tests
 from db_tables.http_tests import HttpTest, HttpTestResults
-from db_tables.http_request import HttpRequestCategory, HttpRequest, HttpSubRequest
-from db_tables.http_response import HttpResponse, HttpSubResponse
+from db_tables.http_request import HttpRequestCategory, HttpRequest, HttpSubRequest, HttpRequestMethods
+from db_tables.http_response import HttpResponse, HttpSubResponse, HttpResponseCodes
 from db_tables.http_verification import HttpResponseVerification
 from db_tables.db_base import session
 from sqlalchemy.sql.expression import and_, or_
@@ -21,7 +21,7 @@ def new_request():
     """
     if request.method == 'GET':
         data ={'categories': [ {'id': category[0], 'name': category[1] } for category in session.query(HttpRequestCategory.id, HttpRequestCategory.category_name).all()]}
-        response_data = { 'form' : render_template('schedule_new_test.html'),
+        response_data = { 'form' : render_template('configure_request.html'),
                               'response_data' : data
                                 }
         resp = make_response(jsonify(response_data), 200)
@@ -59,8 +59,7 @@ def load_all_requests(request_id=None):
     else:
         show_request = session.query(HttpRequest).get(request_id)
         sub_request_query = session.query(HttpSubRequest).filter(HttpSubRequest.request_id==request_id)
-        sub_response_query = session.query(HttpSubResponse).filter(HttpSubResponse.request_id==request_id)
-        
+
         if request.method == 'GET':
             response_data = {  'form' : render_template('request_details.html'),
                               'response_data' : {'request_details': {}}
@@ -71,8 +70,30 @@ def load_all_requests(request_id=None):
                                             'main_details': format_main_details_data(show_request),
                                             'sub_request_details': [ format_sub_request_data(sub_request)
                                                 for sub_request in sub_request_query ],
-                                            'sub_response_details' : [ format_sub_response_data(sub_response)
-                                                for sub_response in sub_response_query ]
+                                            'categories' : [ 
+                                                             {'id': category[0], 
+                                                              'name': category[1] 
+                                                             } for category in session.query(
+                                                               HttpRequestCategory.id, 
+                                                               HttpRequestCategory.category_name
+                                                             ).all()
+                                                           ],
+                                            'methods' : [
+                                                          {'id': method[0],
+                                                              'name': method[1]
+                                                             } for method in session.query(
+                                                               HttpRequestMethods.id,
+                                                               HttpRequestMethods.method_name
+                                                            ).all()
+											],
+                                            'codes' : [
+                                                          {'id': code[0],
+                                                              'name': code[1]
+                                                             } for code in session.query(
+                                                               HttpResponseCodes.id,
+                                                               HttpResponseCodes.code_name
+                                                            ).all()
+											]
                                        }
                                }
             resp = make_response(jsonify(response_data), 200)

@@ -78,6 +78,7 @@ class HttpSubResponse(Base):
     http_request = relationship("HttpRequest", backref='http_single_response')
     http_response = relationship("HttpResponse", backref='http_single_response')
     response_code = relationship("HttpResponseCodes", backref='http_single_reponse')
+    http_sub_request = relationship("HttpSubRequest", backref='http_single_response', uselist=False)
     
     data = relationship("HttpData", backref="htt_sinlge_response")
     

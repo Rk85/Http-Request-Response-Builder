@@ -115,6 +115,7 @@ def format_main_details_data(request):
         'id': request.id,
         'request_description': request.description,
         'request_category_name': request.category.category_name,
+        'request_category_id': request.category.id,
         'request_pipe_line' : request.pipe_line,
         'total_requests' : request.total_requests
     })
@@ -135,21 +136,33 @@ def format_sub_request_data(sub_request):
     if sub_request.http_response_verification:
         verification = sub_request.http_response_verification[0]
         sub_request_info.update({
-                                 'verify_code' : verification.http_response_codes.code_name if verification.http_response_codes else '',
+                                 'verify_code' : verification.http_response_codes.id if verification.http_response_codes else '',
                                  'verify_version' : verification.version,
-                                 'verify_resp_hdrs': '\r\n'.join([ header.header_name + " : " + ';'.join([header.proxy_value]) for header in verification.response_hdrs]),
-                                 'verify_data_checksum' : verification.http_data.cksum if verification.http_data else '',
+                                 'verify_resp_hdrs': '\r\n'.join( 
+                                                                 [header.header_name + " : " + ';'.join(
+                                                                   [header.proxy_value]) 
+                                                                    for header in verification.response_hdrs
+                                                                 ]
+                                                          ),
+                                 'verify_data_checksum' : True if verification.http_data else False,
                                  'verify_single_header' : [ header.single_value_hdr for header in verification.response_hdrs]
         })
     sub_request_info.update({
         'id': sub_request.id,
-        'method': sub_request.method.method_name if sub_request.method else '',
-        'request_headers': '\r\n'.join([ header.header_name + " : " + ';'.join([header.client_value]) for header in sub_request.request_hdrs]),
+        'selected_method_id': sub_request.method.id if sub_request.method else '',
+        'request_headers': '\r\n'.join( 
+                                        [header.header_name + " : " + ';'.join(
+                                             [header.client_value]) 
+                                             for header in sub_request.request_hdrs
+                                        ]
+                                      ),
         'version': sub_request.version,
         'data_size': len(sub_request.data.data) if sub_request.data else 0,
         'server_request': sub_request.reach_server,
         'request_delay': sub_request.request_delay,
     })
+    if sub_request.http_single_response:
+        sub_request_info['sub_response_details'] = format_sub_response_data(sub_request.http_single_response[0])
     return sub_request_info
 
 def format_sub_response_data(sub_response):
@@ -167,18 +180,29 @@ def format_sub_response_data(sub_response):
     if sub_response.http_request_verification:
         verification = sub_response.http_request_verification[0]
         sub_response_info.update( {
-                                 'verify_method' : verification.http_methods.method_name if verification.http_methods else '',
+                                 'verify_method_id' : verification.http_methods.id if verification.http_methods else '',
                                  'verify_version' : verification.version,
-                                 'verify_req_hdrs': '\r\n'.join([ header.header_name + " : " + ';'.join([header.proxy_value]) for header in verification.request_hdrs]),
-                                 'verify_data_checksum' : verification.http_data.cksum if verification.http_data else '',
+                                 'verify_req_hdrs': '\r\n'.join(
+                                                                [header.header_name + " : " + ';'.join(
+                                                                   [header.proxy_value]) 
+                                                                   for header in verification.request_hdrs
+                                                                ]
+                                                               ),
+                                 'verify_data_checksum' : True if verification.http_data else False,
                                  'verify_single_header' : [ header.single_value_hdr for header in verification.request_hdrs]
         })
     sub_response_info.update({
         'id': sub_response.id,
         'version': sub_response.version,
-        'response_code' : sub_response.response_code.code_name if sub_response.response_code else '',
-        'response_headers': '\r\n'.join([ header.header_name + " : " + ';'.join([header.server_value]) for header in sub_response.response_hdrs]),
+        'selected_response_code' : sub_response.response_code.id if sub_response.response_code else '',
+        'response_headers': '\r\n'.join(
+                                         [ header.header_name + " : " + ';'.join(
+                                           [header.server_value]) 
+                                           for header in sub_response.response_hdrs
+                                         ]
+                                        ),
         'data_size': len(sub_response.data.data) if sub_response.data else 0,
+        'request_id' : sub_response.sub_request_id
     })
     return sub_response_info
 
