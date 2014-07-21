@@ -138,24 +138,14 @@ def format_sub_request_data(sub_request):
         sub_request_info.update({
                                  'verify_code' : verification.http_response_codes.id if verification.http_response_codes else '',
                                  'verify_version' : verification.version,
-                                 'verify_resp_hdrs': '\r\n'.join( 
-                                                                 [header.header_name + " : " + ';'.join(
-                                                                   [header.proxy_value]) 
-                                                                    for header in verification.response_hdrs
-                                                                 ]
-                                                          ),
                                  'verify_data_checksum' : True if verification.http_data else False,
-                                 'verify_single_header' : [ header.single_value_hdr for header in verification.response_hdrs]
+                                 'verify_single_header' : [ header.single_value_hdr for header in verification.response_hdrs],
+                                 'selected_request_verify_ids' : verification.response_hdr_ids.split(","),
         })
     sub_request_info.update({
         'id': sub_request.id,
         'selected_method_id': sub_request.method.id if sub_request.method else '',
-        'request_headers': '\r\n'.join( 
-                                        [header.header_name + " : " + ';'.join(
-                                             [header.client_value]) 
-                                             for header in sub_request.request_hdrs
-                                        ]
-                                      ),
+        'selected_request_client_ids' : sub_request.request_hdr_ids.split(","),
         'version': sub_request.version,
         'data_size': len(sub_request.data.data) if sub_request.data else 0,
         'server_request': sub_request.reach_server,
@@ -182,12 +172,7 @@ def format_sub_response_data(sub_response):
         sub_response_info.update( {
                                  'verify_method_id' : verification.http_methods.id if verification.http_methods else '',
                                  'verify_version' : verification.version,
-                                 'verify_req_hdrs': '\r\n'.join(
-                                                                [header.header_name + " : " + ';'.join(
-                                                                   [header.proxy_value]) 
-                                                                   for header in verification.request_hdrs
-                                                                ]
-                                                               ),
+                                 'selected_response_verify_ids' : verification.request_hdr_ids.split(","),
                                  'verify_data_checksum' : True if verification.http_data else False,
                                  'verify_single_header' : [ header.single_value_hdr for header in verification.request_hdrs]
         })
@@ -195,12 +180,7 @@ def format_sub_response_data(sub_response):
         'id': sub_response.id,
         'version': sub_response.version,
         'selected_response_code' : sub_response.response_code.id if sub_response.response_code else '',
-        'response_headers': '\r\n'.join(
-                                         [ header.header_name + " : " + ';'.join(
-                                           [header.server_value]) 
-                                           for header in sub_response.response_hdrs
-                                         ]
-                                        ),
+        'selected_response_server_ids' : sub_response.response_hdr_ids.split(","),
         'data_size': len(sub_response.data.data) if sub_response.data else 0,
         'request_id' : sub_response.sub_request_id
     })

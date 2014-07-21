@@ -6,8 +6,8 @@
 			<span> ( Request Id: <span data-bind="text: id"> </span> 
 			<span>) </span>
 			<div class="pull-right">
-				<a href="javascript:void(0)" data-bind="if: mainEditVisible, click: makeMainEdit">Edit</a>
-				<a href="javascript:void(0)" data-bind="if: mainSaveVisible, click: makeMainSave">Save</a>
+				<a href="javascript:void(0)" data-bind="if: editVisible, click: makeEdit">Edit</a>
+				<a href="javascript:void(0)" data-bind="if: saveVisible, click: makeSave">Save</a>
 			</div>
 			</div>
 		</div>
@@ -15,7 +15,7 @@
 			<div class="row-fluid new-line">
 				<div class="span11">
 					<span>Category : </span>
-					<select class="input-small" data-bind="enable: $root.mainEditable, options: categories, optionsText: 'name',
+					<select class="input-small" data-bind="enable: $root.editable, options: categories, optionsText: 'name',
                           value: selectedCategory,
                           optionsCaption: 'Choose...'">
 	        	    </select>
@@ -24,39 +24,39 @@
 			<div class="row-fluid new-line">
 				<div class="span5">
 					<span> Request Description : </span>
-					<input type="text" class="input-large" data-bind="enable: $root.mainEditable, value: requestDescription"></input>
+					<input type="text" class="input-large" data-bind="enable: $root.editable, value: requestDescription"></input>
 				</div>
 				<div class="span3">
 					<span> Pipe Line Request : </span>
 					<label class="radio inline">
-						<input type="radio" value="Yes" data-bind="enable: $root.mainEditable, checked: requestPipeLine">Yes</input>
+						<input type="radio" value="Yes" data-bind="enable: $root.editable, checked: requestPipeLine">Yes</input>
 					</label>
 					<label class="radio inline">
-						<input type="radio" value="No" data-bind="enable: $root.mainEditable, checked: requestPipeLine">No</input>
+						<input type="radio" value="No" data-bind="enable: $root.editable, checked: requestPipeLine">No</input>
 					</label>
 				</div>
 				<div class="span3">
 					<span> Total Requests : </span>
-					<input type="text" class="input-mini" data-bind="enable: $root.mainEditable, value:totalRequests"></input>
+					<input type="text" class="input-mini" data-bind="enable: $root.editable, value:totalRequests"></input>
 				</div>
 			</div>
 			<div class="row-fluid new-line">
 				<div class="span5">
 					<span> Response Description : </span>
-					<input type="text" class="input-large" data-bind="enable: $root.mainEditable, value: responseDescription"></input>
+					<input type="text" class="input-large" data-bind="enable: $root.editable, value: responseDescription"></input>
 				</div>
 				<div class="span3">
 					<span> Pipe Line Response : </span>
                     <label class="radio inline">
-                        <input type="radio" value="Yes" data-bind="enable: $root.mainEditable, checked: responsePipeLine">Yes</input>
+                        <input type="radio" value="Yes" data-bind="enable: $root.editable, checked: responsePipeLine">Yes</input>
                     </label>
                     <label class="radio inline">
-                        <input type="radio" value="No" data-bind="enable: $root.mainEditable, checked: responsePipeLine">No</input>
+                        <input type="radio" value="No" data-bind="enable: $root.editable, checked: responsePipeLine">No</input>
                     </label>
 				</div>
 				<div class="span3">
 					<span> Total Responses : </span>
-                    <input type="text" class="input-mini" data-bind="enable: $root.mainEditable, value:totalResponses"></input>
+                    <input type="text" class="input-mini" data-bind="enable: $root.editable, value:totalResponses"></input>
 				</div>
 			</div>
 		</div>
@@ -64,10 +64,6 @@
 	<div class="row-fluid new-header">
 		<div class="header-line">
 			<a data-toggle="collapse" data-parent="#accordion" href="#request_details">Request Details</a>
-			<div class="pull-right">
-				<a href="javascript:void(0)" data-bind="if: requestEditVisible, click: makeRequestEdit">Edit</a>
-				<a href="javascript:void(0)" data-bind="if: requestSaveVisible, click: makeRequestSave">Save</a>
-			</div>
 		</div>
 		<div id="request_details" class="panel-collapse collapse">
 			<div class="row-fluid new-line">
@@ -95,31 +91,31 @@
                             </tr>
 							<tr class="info" data-bind="visible: showRequest">
 								<td>
-									<select class="input-small" data-bind="enable: $root.requestEditable, options: methods.available, optionsText: 'name',
+									<select class="input-small" data-bind="enable: $root.editable, options: methods.available, optionsText: 'name',
                     			      value: methods.selected,
             		            	  optionsCaption: 'Choose...'">
 					        	    </select>
 								</td>
                                 <td>
-									<textarea type="text" data-bind="enable: $root.requestEditable, value: requestHeaders"/>
+									<select data-bind=" enable: $root.editable, options: requestHeaders.available, selectedOptions: requestHeaders.selected, optionsText: 'name'" size="2" multiple="true"></select>
 								</td>
                                 <td>
-									<input class="input-mini" type="text" data-bind="enable: $root.requestEditable, value: version"/>
+									<input class="input-mini" type="text" data-bind="enable: $root.editable, value: version"/>
 								</td>
                                 <td>
-									<select class="input-mini" data-bind="enable: $root.requestEditable, options: data.available,
+									<select class="input-mini" data-bind="enable: $root.editable, options: data.available,
                     			      value: data.selected,
             		            	  optionsCaption: 'Choose...'">
 					        	    </select>
 								</td>
                                 <td>
-									<select class="input-mini" data-bind="enable: $root.requestEditable, options: serverRequest.available,
+									<select class="input-mini" data-bind="enable: $root.editable, options: serverRequest.available,
                     			      value: serverRequest.selected,
             		            	  optionsCaption: 'Choose...'">
 					        	    </select>
 								</td>
                                 <td>
-									<input class="input-mini" type="text" data-bind="enable: $root.requestEditable, value:delayRequest"/>
+									<input class="input-mini" type="text" data-bind="enable: $root.editable, value:delayRequest"/>
 								</td>
 							</tr>
 							<tr class="new-table-header" data-bind="visible: showRequest">
@@ -133,25 +129,25 @@
 							</tr>
 							<tr class="info" data-bind="visible: showRequest">
                                 <td colspan="1">
-									<select class="input-small" data-bind="enable: $root.requestEditable, options: verifyCode.available,
+									<select class="input-small" data-bind="enable: $root.editable, options: verifyCode.available,
                     			      value: verifyCode.selected, optionsText: 'name',
             		            	  optionsCaption: 'Choose...'">
 					        	    </select>
 								</td>
                                 <td colspan="1">
-									<textarea type="text" data-bind="enable: $root.requestEditable, value: verifyRespHdrs"/>
+									<select data-bind="enable: $root.editable, options: verifyHeaders.available, selectedOptions: verifyHeaders.selected, optionsText: 'name'" size="2" multiple="true"></select>
 								</td>
                                 <td colspan="1">
-									<input class="input-mini" type="text" data-bind="enable: $root.requestEditable, value: verifyVersion"/>
+									<input class="input-mini" type="text" data-bind="enable: $root.editable, value: verifyVersion"/>
 								</td>
                                 <td colspan="1">
-									<select class="input-mini" data-bind="enable: $root.requestEditable, options: verifySingHdr.available,
+									<select class="input-mini" data-bind="enable: $root.editable, options: verifySingHdr.available,
                     			      value: verifySingHdr.selected,
             		            	  optionsCaption: 'Choose...'">
 					        	    </select>
 								</td>
                                 <td colspan="1">
-									<select class="input-mini" data-bind="enable: $root.requestEditable, options: verifyDataCheck.available,
+									<select class="input-mini" data-bind="enable: $root.editable, options: verifyDataCheck.available,
                     			      value: verifyDataCheck.selected,
             		            	  optionsCaption: 'Choose...'">
 					        	    </select>
@@ -169,19 +165,19 @@
 							</tr>
 							<tr class="info" data-bind="with: subResponse, visible: showResponse">
 								<td>
-									<select class="input-small" data-bind="enable: $root.requestEditable, options: responseCode.available,
+									<select class="input-small" data-bind="enable: $root.editable, options: responseCode.available,
                     			      value: responseCode.selected, optionsText: 'name',
             		            	  optionsCaption: 'Choose...'">
 					        	    </select>
 								</td>
                                 <td colspan="1">
-									<textarea data-bind="enable: $root.requestEditable, value: responseHeaders"/>
+									<select data-bind=" enable: $root.editable, options: responseHeaders.available, selectedOptions: responseHeaders.selected, optionsText: 'name'" size="2" multiple="true"></select>
 								</td>
                                 <td>
-									<input class="input-mini" type="text" data-bind="enable: $root.requestEditable, value: version"/>
+									<input class="input-mini" type="text" data-bind="enable: $root.editable, value: version"/>
 								</td>
                                 <td>
-									<select class="input-mini" data-bind="enable: $root.requestEditable, options: data.available,
+									<select class="input-mini" data-bind="enable: $root.editable, options: data.available,
                     			      value: data.selected,
             		            	  optionsCaption: 'Choose...'">
                                 </td>
@@ -199,25 +195,25 @@
 							</tr>
 							<tr class="info" data-bind="with: subResponse, visible: showResponse">
                                 <td colspan="1">
-									<select class="input-small" data-bind="enable: $root.requestEditable, options: verifyMethod.available,
+									<select class="input-small" data-bind="enable: $root.editable, options: verifyMethod.available,
                     			      value: verifyMethod.selected, optionsText: 'name',
             		            	  optionsCaption: 'Choose...'">
 					        	    </select>
 								</td>
                                 <td colspan="1">
-									<textarea class="form-control" data-bind="enable: $root.requestEditable, value: verifyReqHdrs"/>
+									<select data-bind="enable: $root.editable, options: verifyHeaders.available, selectedOptions: verifyHeaders.selected, optionsText: 'name'" size="2" multiple="true"></select>
 								</td>
                                 <td colspan="1">
-									<input class="input-mini" type="text" data-bind="enable: $root.requestEditable, value: verifyVersion">
+									<input class="input-mini" type="text" data-bind="enable: $root.editable, value: verifyVersion">
 								</td>
                                 <td colspan="1">
-									<select class="input-mini" data-bind="enable: $root.requestEditable, options: verifySingHdr.available,
+									<select class="input-mini" data-bind="enable: $root.editable, options: verifySingHdr.available,
                     			      value: verifySingHdr.selected,
             		            	  optionsCaption: 'Choose...'">
 					        	    </select>
 								</td>
                                 <td colspan="1">
-									<select class="input-mini" data-bind="enable: $root.requestEditable, options: verifyDataCheck.available,
+									<select class="input-mini" data-bind="enable: $root.editable, options: verifyDataCheck.available,
                     			      value: verifyDataCheck.selected,
             		            	  optionsCaption: 'Choose...'">
 					        	    </select>
@@ -237,21 +233,52 @@
 <script>
 (function(httpRequestResponseBuilder, $, undefined){
 	
-	var subResponseDetails = function subResponseDetails(data){
+	var subResponseDetails = function subResponseDetails(parent, data){
 		var self = this;
 		
-		var fullData = data || {};
-		var response = fullData.data || {};
-		response.codes = fullData.codes || [];
-		response.methods = fullData.methods || [];
+		var response = data || {};
 		
 		self.id = ko.observable(response.id || 0);
 		self.request_id = ko.observable(response.request_id);
-		
-		self.responseHeaders = ko.observable(response.response_headers || []);
 		self.version = ko.observable(response.version || '1.1');
 		self.verifyVersion = ko.observable(response.verify_version || '1.1');
-		self.verifyReqHdrs = ko.observable( response.verify_req_hdrs || '');
+		
+		self.responseHeaders = {
+			available: ko.observableArray($.map(parent.responseHeaders || [], function(header){
+								var headerName = header.name;
+								var headerValue = header.value.replace(",", ";");
+								headerValue = headerValue.replace("'", "");
+								headerValue = headerValue.slice(1, headerValue.length-2);
+								return {
+										 id : header.id,
+			 							 name : headerName + " : " + headerValue
+										}
+						})),
+			selected : ko.observableArray()
+		};
+		self.responseHeaders.selected($.map(response.selected_response_server_ids || [], function(id){
+                           return ko.utils.arrayFirst(self.responseHeaders.available() || [], function(item) {
+				                    return parseInt(item.id) === parseInt(id);
+                			})
+                        }));
+		self.verifyHeaders = {
+			available: ko.observableArray($.map(parent.verifyResponseHeaders || [], function(header){
+								var headerName = header.name;
+								var headerValue = header.value.replace(",", ";");
+								headerValue = headerValue.replace(/'/gi, "");
+								headerValue = headerValue.slice(1, headerValue.length-2);
+								return {
+										 id : header.id,
+			 							 name : headerName + " : " + headerValue
+										}
+						})),
+			selected : ko.observableArray()
+		};
+		self.verifyHeaders.selected($.map(response.selected_response_verify_ids || [], function(id){
+                           return ko.utils.arrayFirst(self.verifyHeaders.available() || [], function(item) {
+				                    return parseInt(item.id) === parseInt(id);
+                			})
+                        }));
         self.verifyDataCheck = {
 				available: ko.observableArray([ 'Yes', 'No']),
 				selected: ko.observable( response.verify_data_checksum ? "Yes" : "No")
@@ -263,7 +290,7 @@
 		}
 		
         self.responseCode = {
-			available : ko.observableArray(response.codes || []),
+			available : ko.observableArray(parent.codes || []),
 			selected  : ko.computed(function(){
 	            return ko.utils.arrayFirst(response.codes || [], function(item) {
     	            return parseInt(item.id) === response.selected_response_code;
@@ -271,7 +298,7 @@
         	})
 		}
 		self.verifyMethod = {
-			available : ko.observable(response.methods || []),
+			available : ko.observable(parent.methods || []),
 			selected  : ko.computed(function(){
 	            return ko.utils.arrayFirst(response.methods || [], function(item) {
     	            return parseInt(item.id) === response.verify_method_id;
@@ -284,16 +311,18 @@
 		}
 	};	
 
-	var subRequestDetails = function subRequestDetails(data){
+	var subRequestDetails = function subRequestDetails(parent, data){
 		var self = this;
 		
 		var request = data || {};
 		
 		self.id = ko.observable(request.id || 0);
+		self.version = ko.observable(request.version || '1.1');
+		self.delayRequest = ko.observable(request.request_delay || 0);
 		self.methods = {
-			available : ko.observable(request.methods || []),
+			available : ko.observable(parent.methods || []),
 			selected  : ko.computed(function(){
-	            return ko.utils.arrayFirst(request.methods || [], function(item) {
+	            return ko.utils.arrayFirst(parent.methods || [], function(item) {
     	            return parseInt(item.id) === request.selected_method_id;
         	    })
         	})
@@ -306,34 +335,59 @@
 			available : ko.observableArray([ 'Yes', 'No']),
 			selected : ko.observable(request.data_size != 0 ? "Yes" : "No")
 		}
-		self.requestHeaders = ko.observable(request.request_headers || []);
-		self.version = ko.observable(request.version || '1.1');
-		self.delayRequest = ko.observable(request.request_delay || 0);
-		self.dataSize = ko.observable(request.data_size || 0);
+		self.requestHeaders = {
+			available: ko.observableArray($.map(parent.requestHeaders || [], function(header){
+								var headerName = header.name;
+								var headerValue = header.value.replace(",", ";");
+								headerValue = headerValue.replace("'", "");
+								headerValue = headerValue.slice(1, headerValue.length-2);
+								return {
+										 id : header.id,
+			 							 name : headerName + " : " + headerValue
+										}
+						})),
+			selected : ko.observableArray()
+		};
+		self.requestHeaders.selected($.map(request.selected_request_client_ids || [], function(id){
+                           return ko.utils.arrayFirst(self.requestHeaders.available() || [], function(item) {
+				                    return parseInt(item.id) === parseInt(id);
+                			})
+                        }));
+		self.verifyHeaders = {
+			available: ko.observableArray($.map(parent.verifyRequestHeaders || [], function(header){
+								var headerName = header.name;
+								var headerValue = header.value.replace(",", ";");
+								headerValue = headerValue.replace(/'/gi, "");
+								headerValue = headerValue.slice(1, headerValue.length-2);
+								return {
+										 id : header.id,
+			 							 name : headerName + " : " + headerValue
+										}
+						})),
+			selected : ko.observableArray()
+		};
+		self.verifyHeaders.selected($.map(request.selected_request_verify_ids || [], function(id){
+                           return ko.utils.arrayFirst(self.verifyHeaders.available() || [], function(item) {
+				                    return parseInt(item.id) === parseInt(id);
+                			})
+                        }));
         self.verifySingHdr = {
 			available : ko.observableArray([ 'Yes', 'No']),
 			selected : ko.observable(request.verify_single_header ? "Yes" : "No")
 		}
         self.verifyCode = {
-			available : ko.observableArray(request.codes || []),
+			available : ko.observableArray(parent.codes || []),
 			selected  : ko.computed(function(){
-	            return ko.utils.arrayFirst(request.codes || [], function(item) {
+	            return ko.utils.arrayFirst(parent.codes || [], function(item) {
     	            return parseInt(item.id) === request.verify_code;
         	    })
         	})
 		}
 		self.verifyVersion = ko.observable(request.verify_version || '1.1');
-		self.verifyRespHdrs = ko.observable(request.verify_resp_hdrs || []);
         self.verifyDataCheck = {
 				available: ko.observableArray([ 'Yes', 'No']),
 				selected: ko.observable( request.verify_data_checksum ? "Yes" : "No")
 		}
-		self.subResponse = ko.observable(new subResponseDetails(
-											{ data: data.sub_response_details,
-											  codes : request.codes,
-											  methods : request.methods
-											}));
-		
 		self.showRequest = ko.observable(true);
 		self.showResponse = ko.computed(function(){
 			return self.showRequest() && data.sub_response_details;
@@ -343,7 +397,9 @@
 				return 8;
 			}
 			return 4;
-		})
+		});
+		
+		self.subResponse = ko.observable(new subResponseDetails(parent,  data.sub_response_details));
 	};	
 
 
@@ -352,34 +408,70 @@
 		var mainDetail = data.main_details || {};
 		
 		//Main Details edit/save controllers
-		self.mainEditable = ko.observable(false);		
-		self.mainEditVisible = ko.observable(true);
-		self.mainSaveVisible = ko.observable(false);
+		self.editable = ko.observable(false);		
+		self.editVisible = ko.observable(true);
+		self.saveVisible = ko.observable(false);
 		
-		self.makeMainEdit = function(){
-			self.mainEditable(true);
-			self.mainEditVisible(false);
-			self.mainSaveVisible(true);
+		self.makeEdit = function(){
+			self.editable(true);
+			self.editVisible(false);
+			self.saveVisible(true);
 		}
-		self.makeMainSave = function(){
-			self.mainEditable(false);
-			self.mainEditVisible(true);
-			self.mainSaveVisible(false);
-		}
-		
-		//Request Details edit/save controllers
-		self.requestEditable = ko.observable(false);		
-		self.requestEditVisible = ko.observable(true);
-		self.requestSaveVisible = ko.observable(false);
-		self.makeRequestEdit = function(){
-			self.requestEditable(true);
-			self.requestEditVisible(false);
-			self.requestSaveVisible(true);
-		}
-		self.makeRequestSave = function(){
-			self.requestEditable(false);
-			self.requestEditVisible(true);
-			self.requestSaveVisible(false);
+		self.makeSave = function(){
+			var postData = {
+					request : {
+								is_active : true,
+								category_id : self.selectedCategory().id,
+								pipe_line : self.requestPipeLine(),
+								total_requests : self.totalRequests(),
+								description : self.requestDescription()
+							},
+					request_details : [ 
+										{
+											method_id: 3,    
+											request_hdr_ids : '1',
+                                            version : '1.1', 
+											data_id : null,
+                                            is_active: true, 
+											request_delay : 0,
+                                            reach_server: true
+										}
+									],
+					response_verification :[ 
+										{ 
+                                           version: '1.1', 
+								   		   response_code_id : 1,
+                                           response_hdr_ids: '1', 
+										   data_id:1
+                                    	}
+									],
+					response : {
+								pipe_line : self.responsePipeLine(),
+								description : self.responseDescription(),
+								total_response : self.totalResponses(),
+								is_active : true,
+							},
+					 response_details : [ 
+											{
+											 version : '1.1',
+                                             response_code_id: 1, 
+ 											 response_hdr_ids: '1',
+                                             data_id: 1, 
+											 is_active:true
+                                    	}
+                            		],
+                     request_verification :[ 
+											 {  
+                                                method_id: 3,
+                                                version:'1.1', 
+												request_hdr_ids:'1',
+                                                data_id: null
+                                        	}
+                            		]
+			};
+			self.editable(false);
+			self.editVisible(true);
+			self.saveVisible(false);
 		}
 		
 		self.categories = ko.observableArray(data.categories || []);
@@ -391,15 +483,24 @@
 
 		self.id = ko.observable( mainDetail.id || 0);
 		
+		/* Response Details */
+		self.responseDescription = ko.observable(mainDetail.response_description || '');
+		self.responsePipeLine = ko.observable(mainDetail.response_pipe_line ? "Yes":'No');
+		self.totalResponses = ko.observable(mainDetail.total_responses || 0 );
+		self.responseHeaders = data.response_headers || [];
+		self.verifyResponseHeaders = data.response_verify_headers || [];
+		
 		/* Request Details */
 		self.requestDescription = ko.observable(mainDetail.request_description || '');
 		self.requestPipeLine = ko.observable(mainDetail.request_pipe_line ? "Yes":'No');
 		self.totalRequests = ko.observable(mainDetail.total_requests || 0 );
+		self.requestHeaders = data.request_headers || [];
+		self.verifyRequestHeaders = data.request_verify_headers || [];
+		self.methods = data.methods || [];
+		self.codes = data.code ||[];
 		
 		self.subRequests = ko.observableArray( $.map(data.sub_request_details || [], function(request){
-			request.methods = data.methods || [];
-			request.codes = data.codes || [];
-			return new subRequestDetails(request);
+			return new subRequestDetails(self, request);
 		}));
 		self.requestFilter = ko.observable();
 		self.requestFilter.subscribe(function(value){
@@ -423,12 +524,6 @@
 				})
 			}
 		});
-		
-		/* Response Details */
-		self.responseDescription = ko.observable(mainDetail.response_description || '');
-		self.responsePipeLine = ko.observable(mainDetail.response_pipe_line ? "Yes":'No');
-		self.totalResponses = ko.observable(mainDetail.total_responses || 0 );
-		
 	}
 }(Application.namespace("Application.httpRequestResponseBuilder"), jQuery))
 

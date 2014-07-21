@@ -4,8 +4,8 @@ import json
 import logging
 from models.new_test_insert import load_tests
 from db_tables.http_tests import HttpTest, HttpTestResults
-from db_tables.http_request import HttpRequestCategory, HttpRequest, HttpSubRequest, HttpRequestMethods
-from db_tables.http_response import HttpResponse, HttpSubResponse, HttpResponseCodes
+from db_tables.http_request import HttpRequestCategory, HttpRequest, HttpSubRequest, HttpRequestMethods, HttpRequestHeaders
+from db_tables.http_response import HttpResponse, HttpSubResponse, HttpResponseCodes, HttpResponseHeaders
 from db_tables.http_verification import HttpResponseVerification
 from db_tables.db_base import session
 from sqlalchemy.sql.expression import and_, or_
@@ -41,6 +41,19 @@ def new_request():
         response_data = { 'post_response': { 'test_id' : 1, 'response_text': response_text}}
         resp = make_response(jsonify(response_data), 200)
         return resp
+
+@request_routes.route('/update/<int:request_id>', methods=['POST'])
+def update_request():
+    """
+        Description : View function for Request Updation
+        
+    """
+    form_data = request.json if request.json else request.form
+    print form_data
+    response_data = { 'post_response': { }}
+    resp = make_response(jsonify(response_data), 200)
+    return resp
+
 
 @request_routes.route('/details', methods=['GET'])
 @request_routes.route('/details/<int:request_id>', methods=['GET'])
@@ -93,7 +106,47 @@ def load_all_requests(request_id=None):
                                                                HttpResponseCodes.id,
                                                                HttpResponseCodes.code_name
                                                             ).all()
-											]
+                                             ],
+                                             'request_headers': [
+                                                          { 'id': request_hdr.id,
+                                                            'name': request_hdr.header_name,
+                                                            'value': request_hdr.client_value
+                                                          } for request_hdr in session.query(
+                                                            HttpRequestHeaders.id,
+                                                            HttpRequestHeaders.header_name,
+                                                            HttpRequestHeaders.client_value
+                                                           ).all()
+                                             ],
+                                             'request_verify_headers': [
+                                                          { 'id': request_hdr.id,
+                                                            'name': request_hdr.header_name,
+                                                            'value': request_hdr.proxy_value
+                                                          } for request_hdr in session.query(
+                                                            HttpResponseHeaders.id,
+                                                            HttpResponseHeaders.header_name,
+                                                            HttpResponseHeaders.proxy_value
+                                                           ).all()
+                                             ],
+                                             'response_headers': [
+                                                          { 'id': response_hdr.id,
+                                                            'name': response_hdr.header_name,
+                                                            'value': response_hdr.server_value
+                                                          } for response_hdr in session.query(
+                                                            HttpResponseHeaders.id,
+                                                            HttpResponseHeaders.header_name,
+                                                            HttpResponseHeaders.server_value
+                                                           ).all()
+                                             ],
+                                             'response_verify_headers': [
+                                                          { 'id': response_hdr.id,
+                                                            'name': response_hdr.header_name,
+                                                            'value': response_hdr.proxy_value
+                                                          } for response_hdr in session.query(
+                                                            HttpRequestHeaders.id,
+                                                            HttpRequestHeaders.header_name,
+                                                            HttpRequestHeaders.proxy_value
+                                                           ).all()
+                                             ]
                                        }
                                }
             resp = make_response(jsonify(response_data), 200)
