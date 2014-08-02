@@ -109,7 +109,8 @@ def format_main_details_data(request):
        main_info.update({
           'total_responses' : response.total_response,
           'response_description': response.description,
-          'response_pipe_line' : response.pipe_line
+          'response_pipe_line' : response.pipe_line,
+          'response_id': response.id
        })
     main_info.update({
         'id': request.id,
@@ -167,6 +168,7 @@ def format_sub_response_data(sub_response):
         out_type : dict
     """
     sub_response_info = {}
+    print "RKTEST", sub_response.http_request_verification
     if sub_response.http_request_verification:
         verification = sub_response.http_request_verification[0]
         sub_response_info.update( {

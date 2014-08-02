@@ -7,6 +7,7 @@ import os
 cwd = os.path.normpath(os.getcwd() + "/../")
 sys.path.append(cwd)
 from db_tables.db_base import session
+from models.new_data_insert import new_request_insert
 from db_tables.http_response import ( HttpResponseCodes,
     HttpResponseHeaders,
     HttpResponse,
@@ -206,62 +207,19 @@ http_details = [ {
                     'response_details' : [{    'version' : '1.1',
                                             'response_code_id': 1, 'response_hdr_ids': '1',
                                             'data_id': 1, 'is_active':True
-                                    }],
+                                    },
+                                   {}
+                         ],
                     'request_verification': [
                                             {  # These Verification are done at server side
                                                 'method_id': 3,
                                                 'version':'1.1', 'request_hdr_ids':'1',
                                                 'data_id': None
-                                        }
+                                        },
+                                   {}
                         ]
         }
 ]
 
-
-for details in http_details:
-    request = details.get('request')
-    request_details = details.get('request_details')
-    response_verifications = details.get('response_verification')
-    
-    response = details.get('response')
-    response_details = details.get('response_details')
-    request_verifications = details.get('request_verification')
-    
-    if request:
-        new_request = HttpRequest(**request)
-        session.add(new_request)
-        session.flush()
-        
-        new_response = HttpResponse(request_id=new_request.id, **response)
-        session.add(new_response)
-        session.flush()
-        
-        if request_details:
-            all_requests = [ HttpSubRequest(request_id=new_request.id, **request_detail ) for request_detail in request_details ]
-            session.add_all(all_requests)
-            session.flush()
-            
-            response_index = 0
-            all_responses = []
-            for request in all_requests:
-                if request.reach_server:
-                    all_responses.append(HttpSubResponse(request_id=new_request.id, response_id=new_response.id,
-                                            sub_request_id=request.id, **response_details[response_index]))
-                    response_index = response_index + 1
-            session.add_all(all_responses)
-            session.flush()
-            
-            if response_verifications:
-                all_response_verification = [ HttpResponseVerification(request_id=new_request.id, sub_request_id=all_requests[index].id,                                                              **response_verification)
-                                                for index, response_verification in enumerate(response_verifications)]
-                session.add_all(all_response_verification)
-                session.flush()
-            
-            if request_verifications:
-                all_request_verification = [ HttpRequestVerification(request_id=new_request.id, 
-                                                sub_request_id=all_responses[index].sub_request_id,                                                                                              sub_response_id= all_responses[index].id, **request_verification)
-                                                for index, request_verification in enumerate(request_verifications)]
-                session.add_all(all_request_verification)
-                session.flush()
-                
+new_request_insert(http_details)
 session.commit()

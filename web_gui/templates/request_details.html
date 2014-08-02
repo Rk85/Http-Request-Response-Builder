@@ -1,5 +1,5 @@
 <div>
-    <h4 align="center">Request Details </h4>
+    <h4 align="center">Request Group Details </h4>
     <div class="row-fluid new-header">
         <div class="header-line">
             <a data-toggle="collapse" data-parent="#accordion" href="#main_details">Main Details</a>
@@ -13,49 +13,21 @@
         </div>
         <div id="main_details" class="panel-collapse collapse in">
             <div class="row-fluid new-line">
-                <div class="span11">
-                    <span>Category : </span>
-                    <select class="input-small" data-bind="enable: $root.editable, options: categories, optionsText: 'name',
+                <div class="span5">
+                    <span>Category</span>
+                    <select class="input-small pull-right" data-bind="enable: $root.editable, options: categories, optionsText: 'name',
                         value: selectedCategory, optionsCaption: 'Choose...'">
                     </select>
                 </div>
             </div>
             <div class="row-fluid new-line">
                 <div class="span5">
-                    <span> Request Description : </span>
-                    <input type="text" class="input-large" data-bind="enable: $root.editable, value: requestDescription"></input>
+                    <span> Request Description</span>
+                    <textarea type="text" class="input-large pull-right" data-bind="enable: $root.editable, value: requestDescription"></textarea>
                 </div>
-                <div class="span3">
-                    <span> Pipe Line Request : </span>
-                    <label class="radio inline">
-                        <input type="radio" value="Yes" data-bind="enable: $root.editable, checked: requestPipeLine">Yes</input>
-                    </label>
-                    <label class="radio inline">
-                        <input type="radio" value="No" data-bind="enable: $root.editable, checked: requestPipeLine">No</input>
-                    </label>
-                </div>
-                <div class="span3">
-                    <span> Total Requests : </span>
-                    <input type="text" class="input-mini" data-bind="enable: $root.editable, value:totalRequests"></input>
-                </div>
-            </div>
-            <div class="row-fluid new-line">
-                <div class="span5">
-                    <span> Response Description : </span>
-                    <input type="text" class="input-large" data-bind="enable: $root.editable, value: responseDescription"></input>
-                </div>
-                <div class="span3">
-                    <span> Pipe Line Response : </span>
-                    <label class="radio inline">
-                        <input type="radio" value="Yes" data-bind="enable: $root.editable, checked: responsePipeLine">Yes</input>
-                    </label>
-                    <label class="radio inline">
-                        <input type="radio" value="No" data-bind="enable: $root.editable, checked: responsePipeLine">No</input>
-                    </label>
-                </div>
-                <div class="span3">
-                    <span> Total Responses : </span>
-                    <input type="text" class="input-mini" data-bind="enable: $root.editable, value:totalResponses"></input>
+                <div class="span5 offset1">
+                    <span> Response Description</span>
+                    <textarea type="text" class="input-large pull-right" data-bind="enable: $root.editable, value: responseDescription"></textarea>
                 </div>
             </div>
         </div>
@@ -67,8 +39,9 @@
         <div id="request_details" class="panel-collapse collapse">
             <div class="row-fluid new-line">
                 <div class="span11 over-flow">
-                    <span class=pull-left"> Search </span>
-                    <input class=pull-left" data-bind="value: requestFilter, valueUpdate: 'keyup'" placeholder= 'Type Ids: 1,2'></input>
+                    <span class="pull-left"> Search </span>
+                    <input class="pull-left" data-bind="value: requestFilter, valueUpdate: 'keyup'" placeholder= 'Type Ids: 1,2'></input>
+                    <a class="btn pull-right" data-bind="visible: $root.editable, click: addNewRequest">Add New Request</a>
                     <table id="request_table" width=100% class="table new-table table-striped table-bordered table-hover table-condensed">
                         <thead class="dataTableHeader">
                             <tr>
@@ -80,7 +53,10 @@
                         <tbody data-bind="foreach: subRequests">
                             <tr class="new-table-header" data-bind="visible: showRequest">
                                 <td class="search-col" data-bind="text: id, attr:{ 'rowspan': totalRow}">1</td>
-                                <td rowspan="2">Request</td>
+                                <td rowspan="2">
+									Request
+                    				<a class="btn btn-small" data-bind="visible: $root.editable, click: function(data, event) { $parent.delRequest(id)}">Delete</a>
+								</td>
                                 <td>Method</td>
                                 <td>Request Headers</td>
                                 <td>Version</td>
@@ -119,9 +95,8 @@
                                 <td colspan="1">Response Code</td>
                                 <td colspan="1">Response Headers</td>
                                 <td colspan="1">Version</td>
-                                <td colspan="1">Is Single Value header</td>
                                 <td colspan="1">Verify Data</td>
-                                <td colspan="1"></td>
+                                <td colspan="2"></td>
                             </tr>
                             <tr class="info" data-bind="visible: showRequest">
                                 <td colspan="1">
@@ -136,16 +111,14 @@
                                     <input class="input-mini" type="text" data-bind="enable: $root.editable, value: verifyVersion"/>
                                 </td>
                                 <td colspan="1">
-                                    <select class="input-mini" data-bind="enable: $root.editable, options: verifySingHdr.available,
-                                        value: verifySingHdr.selected, optionsCaption: 'Choose...'">
-                                    </select>
-                                </td>
-                                <td colspan="1">
                                     <select class="input-mini" data-bind="enable: $root.editable, options: verifyDataCheck.available,
                                         value: verifyDataCheck.selected, optionsCaption: 'Choose...'">
                                     </select>
                                 </td>
-                                <td colspan="1"></td>
+                                <td colspan="2">
+                    				<a class="btn offset2" data-bind="visible: !hasResponse() && $root.editable(), click: addNewResponse">Add Response</a>
+                    				<a class="btn offset2" data-bind="visible: hasResponse() && $root.editable(), click: delResponse">Delete Response</a>
+								</td>
                             </tr>
                             <tr class="new-table-header" data-bind="with: subResponse, visible: showResponse">
                                 <td rowspan="2">Response</td>
@@ -153,8 +126,7 @@
                                 <td colspan="1">Response Headers</td>
                                 <td>Version</td>
                                 <td>Data Present</td>
-                                <td colspan="1"></td>
-                                <td colspan="1"></td>
+                                <td colspan="2"></td>
                             </tr>
                             <tr class="info" data-bind="with: subResponse, visible: showResponse">
                                 <td>
@@ -172,17 +144,15 @@
                                     <select class="input-mini" data-bind="enable: $root.editable, options: data.available,
                                         value: data.selected, optionsCaption: 'Choose...'">
                                 </td>
-                                <td colspan="1"></td>
-                                <td colspan="1"></td>
+                                <td colspan="2"></td>
                             </tr>
                             <tr class="new-table-header" data-bind="with: subResponse, visible: showResponse">
                                 <td rowspan="2">Verification</td>
                                 <td colspan="1">Method</td>
                                 <td colspan="1">Request Headers</td>
                                 <td colspan="1">Version</td>
-                                <td colspan="1">Is Single Value header</td>
                                 <td colspan="1">Verify Data</td>
-                                <td colspan="1"></td>
+                                <td colspan="2"></td>
                             </tr>
                             <tr class="info" data-bind="with: subResponse, visible: showResponse">
                                 <td colspan="1">
@@ -197,17 +167,11 @@
                                     <input class="input-mini" type="text" data-bind="enable: $root.editable, value: verifyVersion">
                                 </td>
                                 <td colspan="1">
-                                    <select class="input-mini" data-bind="enable: $root.editable, options: verifySingHdr.available,
-                                      value: verifySingHdr.selected,
-                                      optionsCaption: 'Choose...'">
-                                    </select>
-                                </td>
-                                <td colspan="1">
                                     <select class="input-mini" data-bind="enable: $root.editable, options: verifyDataCheck.available,
                                         value: verifyDataCheck.selected, optionsCaption: 'Choose...'">
                                     </select>
                                 </td>
-                                <td colspan="1"></td>
+                                <td colspan="2"></td>
                             </tr>
                             <tr class="error" data-bind="visible: showRequest">
                                 <td colspan="8"></td>
@@ -280,23 +244,17 @@
         
         self.responseCode = {
             available : ko.observableArray(parent.codes || []),
-            selected  : ko.computed(function(){
-                return ko.utils.arrayFirst(response.codes || [], function(item) {
-                    return parseInt(item.id) === response.selected_response_code;
+            selected  : ko.observable(ko.utils.arrayFirst(parent.codes || [], function(item) {
+                    return parseInt(item.id) === parseInt(response.selected_response_code);
                 })
-            })
+            )
         }
         self.verifyMethod = {
-            available : ko.observable(parent.methods || []),
-            selected  : ko.computed(function(){
-                return ko.utils.arrayFirst(response.methods || [], function(item) {
-                    return parseInt(item.id) === response.verify_method_id;
+            available : ko.observableArray(parent.methods || []),
+            selected  : ko.observable(ko.utils.arrayFirst(parent.methods || [], function(item) {
+                    return parseInt(item.id) === parseInt(response.verify_method_id);
                 })
-            })
-        }
-        self.verifySingHdr = {
-            available : ko.observableArray([ 'Yes', 'No']),
-            selected : ko.observable(response.verify_single_header ? "Yes" : "No")
+            )
         }
     };    
 
@@ -309,12 +267,11 @@
         self.version = ko.observable(request.version || '1.1');
         self.delayRequest = ko.observable(request.request_delay || 0);
         self.methods = {
-            available : ko.observable(parent.methods || []),
-            selected  : ko.computed(function(){
-                return ko.utils.arrayFirst(parent.methods || [], function(item) {
+            available : ko.observableArray(parent.methods || []),
+            selected  : ko.observable( ko.utils.arrayFirst(parent.methods || [], function(item) {
                     return parseInt(item.id) === request.selected_method_id;
                 })
-            })
+            )
         }
         self.serverRequest = {
             available : ko.observableArray([ 'Yes', 'No']),
@@ -360,26 +317,23 @@
                                     return parseInt(item.id) === parseInt(id);
                             })
                         }));
-        self.verifySingHdr = {
-            available : ko.observableArray([ 'Yes', 'No']),
-            selected : ko.observable(request.verify_single_header ? "Yes" : "No")
-        }
         self.verifyCode = {
             available : ko.observableArray(parent.codes || []),
-            selected  : ko.computed(function(){
-                return ko.utils.arrayFirst(parent.codes || [], function(item) {
-                    return parseInt(item.id) === request.verify_code;
+            selected  : ko.observable(ko.utils.arrayFirst(parent.codes || [], function(item) {
+                    return parseInt(item.id) === parseInt(request.verify_code);
                 })
-            })
+            )
         }
         self.verifyVersion = ko.observable(request.verify_version || '1.1');
         self.verifyDataCheck = {
                 available: ko.observableArray([ 'Yes', 'No']),
                 selected: ko.observable( request.verify_data_checksum ? "Yes" : "No")
         }
+        self.subResponse = ko.observable(new subResponseDetails(parent,  data.sub_response_details));
         self.showRequest = ko.observable(true);
+		self.hasResponse = ko.observable(self.subResponse().id() ? true : false);
         self.showResponse = ko.computed(function(){
-            return self.showRequest() && data.sub_response_details;
+            return self.showRequest() && self.hasResponse();
         });
         self.totalRow = ko.computed(function(){
             if ( self.showResponse() ){
@@ -388,18 +342,27 @@
             return 4;
         });
         
-        self.subResponse = ko.observable(new subResponseDetails(parent,  data.sub_response_details));
+		self.addNewResponse = function addNewResponse(){
+			self.subResponse(new subResponseDetails(parent, {}));
+			self.hasResponse(true);
+		};
+		self.delResponse = function delResponse(){
+			self.hasResponse(false);
+		};
     };    
-
 
     httpRequestResponseBuilder.SingleRequestViewModel = function SingleRequestViewModel(data){
         var self = this;
         var mainDetail = data.main_details || {};
         
+        self.id = ko.observable( mainDetail.id || 0);
+        self.responseId = ko.observable( mainDetail.response_id || 0);
+        
         //Main Details edit/save controllers
         self.editable = ko.observable(false);        
         self.editVisible = ko.observable(true);
         self.saveVisible = ko.observable(false);
+		self.newRequestId = 1;
         
         self.makeEdit = function(){
             self.editable(true);
@@ -408,70 +371,84 @@
         }
         self.makeSave = function(){
             var postData = {
-                    request : {
-                                is_active : true,
+				request : {},
+				details : [],
+				response : {},
+			}
+			//self.subRequests
+            postData.request = {
                                 category_id : self.selectedCategory().id,
-                                pipe_line : self.requestPipeLine(),
-                                total_requests : self.totalRequests(),
-                                description : self.requestDescription()
-                            },
-                    request_details : [ 
-                                        {
-                                            method_id: 3,    
-                                            request_hdr_ids : '1',
-                                            version : '1.1', 
-                                            data_id : null,
-                                            is_active: true, 
-                                            request_delay : 0,
-                                            reach_server: true
-                                        }
-                                    ],
-                    response_verification :[ 
-                                        { 
-                                           version: '1.1', 
-                                              response_code_id : 1,
-                                           response_hdr_ids: '1', 
-                                           data_id:1
-                                        }
-                                    ],
-                    response : {
-                                pipe_line : self.responsePipeLine(),
+                                description : self.requestDescription(),
+                				id: self.id()
+                            }
+            postData.response = {
                                 description : self.responseDescription(),
-                                total_response : self.totalResponses(),
-                                is_active : true,
-                            },
-                     response_details : [ 
-                                            {
-                                             version : '1.1',
-                                             response_code_id: 1, 
-                                              response_hdr_ids: '1',
-                                             data_id: 1, 
-                                             is_active:true
-                                        }
-                                    ],
-                     request_verification :[ 
-                                             {  
-                                                method_id: 3,
-                                                version:'1.1', 
-                                                request_hdr_ids:'1',
-                                                data_id: null
-                                            }
-                                    ]
-            };
-            self.editable(false);
-            self.editVisible(true);
-            self.saveVisible(false);
+                				id: self.responseId()
+                            }
+			postData.details = $.map(self.subRequests() || [], function(request){
+						var details = {
+								request_details :{
+									method_id: request.methods.selected().id,    
+			            	        request_hdr_ids : $.map(request.requestHeaders.selected() || [], function(requestHeader){
+											return requestHeader.id;
+									}),
+            				        version : request.version(), 
+				                    data_id : request.data.selected(),
+                				    request_delay : request.delayRequest(),
+				                    reach_server: request.serverRequest.selected()
+								},
+								response_verification: {
+			                	    version: request.verifyVersion(), 
+            			        	response_hdr_ids : $.map(request.verifyHeaders.selected() || [], function(responseHeader){
+                                            return responseHeader.id;
+                                    }),
+									response_code_id: request.verifyCode.selected().id,
+                				    data_id:request.verifyDataCheck.selected()
+
+								}
+						}
+						if ( request.hasResponse() ){
+							details.response_details = {
+								version : request.subResponse().version(),
+                        		response_code_id: request.subResponse().responseCode.selected().id, 
+		                        response_hdr_ids: $.map(request.subResponse().responseHeaders.selected() || [], function(responseHeader){
+                                            return responseHeader.id;
+        	                    }),
+            		            data_id: request.subResponse().data.selected(), 
+							};
+							details.request_verification = {
+								method_id: request.subResponse().verifyMethod.selected().id,
+		                        version: request.subResponse().verifyVersion(), 
+		                        request_hdr_ids: $.map(request.subResponse().verifyHeaders.selected() || [], function(requestHeader){
+                                            return requestHeader.id;
+                                 }),
+        		                data_id: request.verifyDataCheck.selected()
+							};
+						}
+					return details;
+				});
+			$.ajax({ type: "POST",
+                        url: "/request/update/" + self.id(),
+                        data: ko.toJSON(postData),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function(result) {
+            				self.editable(false);
+				            self.editVisible(true);
+				            self.saveVisible(false);
+                            $.prompt(result.post_response.response_text);
+                        }
+                    }).fail(function(){
+                $.prompt("Unknown Error at server side");
+            })
         }
         
         self.categories = ko.observableArray(data.categories || []);
-        self.selectedCategory = ko.computed(function(){
-            return ko.utils.arrayFirst(self.categories(), function(item) {
+        self.selectedCategory = ko.observable(ko.utils.arrayFirst(self.categories(), function(item) {
                 return parseInt(item.id) === mainDetail.request_category_id;
             })
-        })
+        )
 
-        self.id = ko.observable( mainDetail.id || 0);
-        
         /* Response Details */
         self.responseDescription = ko.observable(mainDetail.response_description || '');
         self.responsePipeLine = ko.observable(mainDetail.response_pipe_line ? "Yes":'No');
@@ -486,11 +463,20 @@
         self.requestHeaders = data.request_headers || [];
         self.verifyRequestHeaders = data.request_verify_headers || [];
         self.methods = data.methods || [];
-        self.codes = data.code ||[];
+        self.codes = data.codes || [];
         
         self.subRequests = ko.observableArray( $.map(data.sub_request_details || [], function(request){
             return new subRequestDetails(self, request);
         }));
+		self.addNewRequest = function addNewRequest(){
+			self.subRequests.push(new subRequestDetails(self, {id: "New " + self.newRequestId}));
+			self.newRequestId = self.newRequestId + 1;
+		}
+		self.delRequest = function delRequest(id){
+			self.subRequests(ko.utils.arrayFilter(self.subRequests() || [], function(request){
+				return request.id() != id();
+			}));
+		};
         self.requestFilter = ko.observable();
         self.requestFilter.subscribe(function(value){
             if (value == '' ){
