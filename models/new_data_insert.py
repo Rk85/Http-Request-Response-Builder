@@ -31,7 +31,7 @@ def new_request_insert(http_details, update=None):
         input_type: list
         
     """
-    
+    new_request = None
     for details in http_details:
          request = details.get('request')
          request_details = details.get('request_details')
@@ -98,7 +98,7 @@ def new_request_insert(http_details, update=None):
                      all_request_verification = []
                      index = 0
                      for request_verification in request_verifications:
-                         if request_verification and request.reach_server:
+                         if request_verification and all_requests[index].reach_server:
                              all_request_verification.append(HttpRequestVerification(
                                                    request_id=new_request.id, 
                                                    sub_request_id=all_responses[index].sub_request_id,
@@ -108,3 +108,4 @@ def new_request_insert(http_details, update=None):
                              index = index + 1
                      session.add_all(all_request_verification)
                      session.flush()
+    return new_request.id if new_request else ''

@@ -46,10 +46,10 @@ class HttpTestResults(Base):
     test_id = Column("TestId", Integer, ForeignKey("HttpTest.Id"), nullable=False)
     
     request_id = Column("RequestId", Integer, ForeignKey("HttpRequest.Id"), nullable=False)
-    sub_request_id = Column("SubRequestId", Integer, ForeignKey("HttpSubRequest.Id"), nullable=False)
+    sub_request_id = Column("SubRequestId", Integer, ForeignKey("HttpSubRequest.Id", ondelete="SET NULL"), nullable=True)
     
     response_id = Column("ResponseId", Integer, ForeignKey("HttpResponse.Id"), nullable=True)
-    sub_response_id = Column("SubResponseId", Integer, ForeignKey("HttpSubResponse.Id"), nullable=True)
+    sub_response_id = Column("SubResponseId", Integer, ForeignKey("HttpSubResponse.Id", ondelete="SET NULL"), nullable=True)
     
     request_result = Column("ServerResult", Boolean)
     response_result = Column("ClientResult", Boolean)

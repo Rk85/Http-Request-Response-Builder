@@ -67,7 +67,7 @@ class HttpSubResponse(Base):
     
     id = Column("Id", Integer, primary_key=True)
     request_id = Column("RequestId", Integer, ForeignKey("HttpRequest.Id"), nullable=False)
-    sub_request_id = Column("SubRequestId", Integer,  ForeignKey("HttpSubRequest.Id"), nullable=False)
+    sub_request_id = Column("SubRequestId", Integer,  ForeignKey("HttpSubRequest.Id", ondelete="CASCADE"), nullable=False)
     response_id = Column("ResponseId", Integer, ForeignKey("HttpResponse.Id"), nullable=False)
     version = Column("Version", String(10), nullable=False)
     response_code_id = Column("ResponseCodeId", Integer, ForeignKey("ResponseCodes.Id"), nullable=False)
