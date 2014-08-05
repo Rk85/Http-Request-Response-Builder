@@ -8,8 +8,8 @@ Base = declarative_base()
 dialect = 'mysql'
 driver = ''
 username = 'root'
-password = 'hashini'
-host = '127.0.0.1'
+password = 'password'
+host = 'localhost'
 db_name = 'test'
 
 if sys.version_info.major > 2:

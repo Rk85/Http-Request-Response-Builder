@@ -466,10 +466,12 @@
         self.codes = data.codes || [];
         
         self.subRequests = ko.observableArray( $.map(data.sub_request_details || [], function(request){
+            request.id = self.newRequestId;
+            self.newRequestId = self.newRequestId + 1;
             return new subRequestDetails(self, request);
         }));
 		self.addNewRequest = function addNewRequest(){
-			self.subRequests.push(new subRequestDetails(self, {id: "New " + self.newRequestId}));
+			self.subRequests.push(new subRequestDetails(self, {id: self.newRequestId}));
 			self.newRequestId = self.newRequestId + 1;
 		}
 		self.delRequest = function delRequest(id){
