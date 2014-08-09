@@ -10,6 +10,7 @@ sys.path.append(cwd)
 from db_tables.db_base import session
 from tests import test_routes
 from requests import request_routes
+from static_data import static_data_routes
 from shared import logger
 
 app = Flask(__name__)
@@ -79,6 +80,7 @@ def help():
 
 app.register_module(test_routes)
 app.register_module(request_routes)
+app.register_module(static_data_routes)
 
 app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
             '/static_files':  os.path.join(os.getcwd(), 'static_files')

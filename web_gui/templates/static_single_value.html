@@ -1,0 +1,82 @@
+<div id="static_content">
+	<div class="row-fluid"> 
+		<h3 class="offset1"> {{name}} Details </h3>
+		<div data-bind="if: columnNames().length > 0" class="over-flow span6">
+			<table width=100% class="pretty table table-striped table-hover table-condensed table-bordered">
+				<thead>
+					<tr data-bind="foreach: columnNames">
+						<th data-bind="text: name"></th>
+					</tr>
+				</thead>
+                   <tbody data-bind="foreach: editRowData">
+					<tr>
+						<td data-bind="text: id">
+						<td>
+							<span data-bind="visible: !$root.edit(), text: name"></span>
+							<input type="text" data-bind="visible: $root.edit, value: name"></input>
+						</td>
+						<td> 
+							<span data-bind="visible: !$root.edit(), text: activeText"></span>
+							<input type="checkbox"data-bind="visible: $root.edit, checked: isActive"/>
+						</td>
+					<tr>
+				<tbody>
+			</table>
+		</div>
+	</div>
+	<a class="btn btn-small offset1" data-bind="click: makeEdit">Edit</a>
+	<a class="btn btn-small" data-bind="click: makeSave">Save</a>
+</div>
+<script>
+(function(httpRequestResponseBuilder, $, undefined){
+	var rowDetails = function rowDetails(row){
+		var self = this;
+		self.id = ko.observable(row.id);
+		self.name = ko.observable(row.name);
+		self.isActive = ko.observable(row.is_active);
+		self.activeText = ko.computed(function(){
+			return self.isActive() ? "Yes" : "No";
+		});
+	}
+    httpRequestResponseBuilder.StaticContentViewModel = function StaticContentViewModel(data){
+		var self = this;
+		self.columnNames = ko.observableArray($.map(data.column_names ||[], function(columnName){
+			return {
+				name: columnName
+			}
+		}));
+		self.editRowData = ko.observableArray($.map(data.row_data || [], function(row){
+			return new rowDetails(row);
+		}));
+		self.postUrl = ko.observable(data.post_url || '');
+		self.edit = ko.observable(false);
+		self.makeEdit = function(){
+			self.edit(true);
+		}
+		self.makeSave = function(){
+			var postData = {
+				edited: $.map(self.editRowData() || [], function(item){
+					return {
+						id: item.id(),
+						name: item.name(),
+						isActive: item.isActive()
+					}
+				})
+			}
+			$.ajax({ type: "POST",
+                        url: self.postUrl(),
+                        data: ko.toJSON(postData),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function(result) {
+							self.edit(false);
+                            $.prompt(result.post_response.response_text);
+                        }
+                    }).fail(function(){
+                $.prompt("Unknown Error at server side");
+            })
+
+		}
+	}
+}(Application.namespace("Application.httpRequestResponseBuilder"), jQuery));
+</script>

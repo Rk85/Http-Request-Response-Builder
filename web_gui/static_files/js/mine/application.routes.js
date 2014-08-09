@@ -46,6 +46,11 @@ Application.Routing = {
 					var url = "/help"
 					Application.Tab.addTab("Help Page" , url, true);
 				});
+				this.get("#/static/types", function(context){
+					context.log("#/static");
+					var url = "/static/types"
+					Application.Tab.addTab("Static Data Page" , url);
+				});
 
 			});
 		},

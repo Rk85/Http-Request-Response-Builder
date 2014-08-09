@@ -297,33 +297,3 @@ def load_all_requests(request_id=None):
             response_data.get('response_data', {}).update(get_static_datas())
             resp = make_response(jsonify(response_data), 200)
             return resp
-
-@request_routes.route('/details/down-load', methods=['POST'])
-def load_excel():
-    """
-        Description : View function to handle the Excel export data
-        
-    """
-    result = get_search_data()
-    excel_data = "<div>"
-    if result:
-        total_colums = len(result[0].keys())
-        excel_data = excel_data + "</table><thead>"
-        for key in result[0].keys():
-            excel_data = excel_data + "<th>" + key + "</th>"
-        excel_data = excel_data + "</thead><tbody>"
-        for item in result:
-            excel_data = excel_data + "<tr>"
-            for td_value in item.values():
-                try:
-                    excel_data = excel_data + "<td>" + str(td_value) + "</td>"
-                except UnicodeEncodeError as e:
-                    logger.exception("Unicode error in excel download " + str(e))
-            excel_data = excel_data + "</tr>"
-        excel_data = excel_data + "</tbody></table>"
-    excel_data = excel_data + "</div>"
-
-    resp = make_response(excel_data, 200)
-    resp.headers['Content-Type'] = "text/plain"
-    resp.headers['Content-Disposition'] = " attachment;filename=report.xls"
-    return resp

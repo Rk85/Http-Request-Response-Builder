@@ -1,0 +1,54 @@
+<div>
+	<div data-bind="if: typeVisible">
+	    <h4 align="center">Static Data </h4>
+		<div class="row-fluid">
+    		<div class="span5">
+        		<span>Select Data Type</span>
+	            <select class="input-medium" data-bind="options: types, optionsText: 'name',
+                        value: selectedType, optionsCaption: 'Choose...'">
+    	        </select>
+      		</div>
+	    </div>
+	</div>
+<div data-bind="html: content">
+</div>
+</div>
+<script>
+(function(httpRequestResponseBuilder, $, undefined){
+
+    httpRequestResponseBuilder.StaticDataViewModel = function StaticDataViewModel(data){
+        var self = this;
+        var mainDetail = data || {};
+		self.types = ko.observableArray(mainDetail.types || [], function(item){
+			return {
+				id: item.id,
+				name: item.name
+			}
+		});
+        self.content = ko.observable('');
+        self.typeVisible = ko.observable(true)
+		self.selectedType = ko.observable();
+		self.selectedType.subscribe(function(){
+			self.typeVisible(false);
+            $.ajax({ type: "GET",
+                        url: "/static/types/" + self.selectedType().id,
+                        success: function(result) {
+                            self.content(result.form);
+							ko.applyBindings(
+								new Application.httpRequestResponseBuilder.StaticContentViewModel(result.data), 
+								$("#static_content")[0]
+							);
+                        }
+                    }).fail(function(){
+                $.prompt("Unknown Error at server side");
+            })
+
+		})
+    }
+}(Application.namespace("Application.httpRequestResponseBuilder"), jQuery))
+
+var applyFormBindings = function(data, tab_id){
+    ko.applyBindings(new Application.httpRequestResponseBuilder.StaticDataViewModel(data), $(tab_id)[0]);
+};
+
+</script>
