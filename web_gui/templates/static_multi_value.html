@@ -1,7 +1,7 @@
 <div id="static_content">
 	<div class="row-fluid"> 
 		<h3 class="offset1"> {{name}} Details </h3>
-		<div data-bind="if: columnNames().length > 0" class="over-flow span6">
+		<div data-bind="if: columnNames().length > 0" class="over-flow span10">
 			<table width=100% class="pretty table table-striped table-hover table-condensed table-bordered">
 				<thead>
 					<tr data-bind="foreach: columnNames">
@@ -12,8 +12,20 @@
 					<tr>
 						<td data-bind="text: id">
 						<td>
-							<span data-bind="visible: !$root.edit(), text: name"></span>
-							<input type="text" data-bind="visible: $root.edit, value: name"></input>
+							<span data-bind="visible: !$root.edit(), text: headerName"></span>
+							<input type="text" data-bind="visible: $root.edit, value: headerName"></input>
+						</td>
+						<td>
+							<span data-bind="visible: !$root.edit(), text: senderValue"></span>
+							<input type="text" data-bind="visible: $root.edit, value: senderValue"></input>
+						</td>
+						<td>
+							<span data-bind="visible: !$root.edit(), text: proxyValue"></span>
+							<input type="text" data-bind="visible: $root.edit, value: proxyValue"></input>
+						</td>
+						<td> 
+							<span data-bind="visible: !$root.edit(), text: singleHeaderText"></span>
+							<input type="checkbox"data-bind="visible: $root.edit, checked: isSingleHeader"/>
 						</td>
 						<td> 
 							<span data-bind="visible: !$root.edit(), text: activeText"></span>
@@ -26,15 +38,21 @@
 	</div>
 	<a class="btn btn-small offset1" data-bind="visible: !$root.edit(), click: makeEdit">Edit</a>
 	<a class="btn btn-small" data-bind="visible: !$root.edit(), click: makeAdd">Add</a>
-	<a class="btn btn-small offset1" data-bind="visible: $root.edit(), click: makeSave">Save</a>
+    <a class="btn btn-small offset1" data-bind="visible: $root.edit(), click: makeSave">Save</a>
 </div>
 <script>
 (function(httpRequestResponseBuilder, $, undefined){
 	var rowDetails = function rowDetails(row){
 		var self = this;
 		self.id = ko.observable(row.id || 0);
-		self.name = ko.observable(row.name || '');
+		self.headerName = ko.observable(row.header_name || '[]');
+		self.senderValue = ko.observable(row.sender_value || '[]');
+		self.proxyValue = ko.observable(row.proxy_value || '[]');
+		self.isSingleHeader = ko.observable(row.is_single_value || false);
 		self.isActive = ko.observable(row.is_active || false);
+		self.singleHeaderText = ko.computed(function(){
+            return self.isSingleHeader() ? "Yes" : "No";
+        });
 		self.activeText = ko.computed(function(){
 			return self.isActive() ? "Yes" : "No";
 		});
@@ -55,14 +73,17 @@
 			self.edit(true);
 		}
 		self.makeAdd = function(){
-			self.editRowData.push(new rowDetails({}))
-		}
+            self.editRowData.push(new rowDetails({}))
+        }
 		self.makeSave = function(){
 			var postData = {
 				edited: $.map(self.editRowData() || [], function(item){
 					return {
 						id: item.id(),
-						name: item.name(),
+						headerName: item.headerName(),
+						senderValue: item.senderValue(),
+						proxyValue: item.proxyValue(),
+						singleValueHeader: item.isSingleHeader(),
 						isActive: item.isActive()
 					}
 				})
